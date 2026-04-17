@@ -4,6 +4,37 @@ import { vi } from "vitest";
 
 import { AboutSection } from "@/components/settings/AboutSection";
 
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: Record<string, unknown>) => {
+      const translations: Record<string, string> = {
+        "common.about": "About",
+        "common.version": "Version",
+        "common.unknown": "Unknown",
+        "settings.aboutHint": "View version information and update status.",
+        "settings.releaseNotes": "Release Notes",
+        "settings.checkForUpdates": "Check for Updates",
+        "settings.localEnvCheck": "Environment Check",
+        "settings.installerCenter": "Environment Check & Install",
+        "settings.openInstallerCenter": "Environment Check & Install",
+        "settings.installerCenter.summaryTitle": "Environment Summary",
+        "common.refresh": "Refresh",
+        "common.refreshing": "Refreshing...",
+      };
+
+      if (key === "settings.updateTo") {
+        return `Update to v${options?.version ?? ""}`;
+      }
+
+      if (key === "settings.updateAvailable") {
+        return `New version available: ${options?.version ?? ""}`;
+      }
+
+      return translations[key] ?? key;
+    },
+  }),
+}));
+
 vi.mock("@tauri-apps/api/app", () => ({
   getVersion: vi.fn().mockResolvedValue("3.13.0"),
 }));
@@ -69,8 +100,19 @@ test("opens installer center from about section", async () => {
   render(<AboutSection isPortable={false} />);
 
   await user.click(
-    await screen.findByRole("button", { name: /environment check/i }),
+    await screen.findByRole("button", { name: /environment check & install/i }),
   );
 
   expect(await screen.findByText(/environment summary/i)).toBeInTheDocument();
+});
+
+test("hides update actions when app updates are disabled", () => {
+  render(<AboutSection isPortable={false} />);
+
+  expect(
+    screen.queryByRole("button", { name: /release notes/i }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: /check for updates/i }),
+  ).not.toBeInTheDocument();
 });

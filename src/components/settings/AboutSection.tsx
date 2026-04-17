@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  Download,
-  ExternalLink,
   Info,
   Loader2,
   RefreshCw,
@@ -20,16 +18,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 import { getVersion } from "@tauri-apps/api/app";
 import { settingsApi } from "@/lib/api";
 import { useUpdate } from "@/contexts/UpdateContext";
-import { relaunchApp } from "@/lib/updater";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import appIcon from "@/assets/icons/app-icon.png";
 import { isWindows } from "@/lib/platform";
 import { InstallerCenterDialog } from "@/components/settings/InstallerCenterDialog";
+import { APP_UPDATES_ENABLED } from "@/lib/updatePolicy";
 
 interface AboutSectionProps {
   isPortable: boolean;
@@ -87,7 +84,6 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
   const { t } = useTranslation();
   const [version, setVersion] = useState<string | null>(null);
   const [isLoadingVersion, setIsLoadingVersion] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [toolVersions, setToolVersions] = useState<ToolVersion[]>([]);
   const [isLoadingTools, setIsLoadingTools] = useState(true);
   const [installerOpen, setInstallerOpen] = useState(false);
@@ -95,9 +91,7 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
   const {
     hasUpdate,
     updateInfo,
-    updateHandle,
     checkUpdate,
-    resetDismiss,
     isChecking,
   } = useUpdate();
 
@@ -222,77 +216,6 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ... (handlers like handleOpenReleaseNotes, handleCheckUpdate) ...
-
-  const handleOpenReleaseNotes = useCallback(async () => {
-    try {
-      const targetVersion = updateInfo?.availableVersion ?? version ?? "";
-      const displayVersion = targetVersion.startsWith("v")
-        ? targetVersion
-        : targetVersion
-          ? `v${targetVersion}`
-          : "";
-
-      if (!displayVersion) {
-        await settingsApi.openExternal(
-          "https://github.com/farion1231/cc-switch/releases",
-        );
-        return;
-      }
-
-      await settingsApi.openExternal(
-        `https://github.com/farion1231/cc-switch/releases/tag/${displayVersion}`,
-      );
-    } catch (error) {
-      console.error("[AboutSection] Failed to open release notes", error);
-      toast.error(t("settings.openReleaseNotesFailed"));
-    }
-  }, [t, updateInfo?.availableVersion, version]);
-
-  const handleCheckUpdate = useCallback(async () => {
-    if (hasUpdate && updateHandle) {
-      if (isPortable) {
-        try {
-          await settingsApi.checkUpdates();
-        } catch (error) {
-          console.error("[AboutSection] Portable update failed", error);
-        }
-        return;
-      }
-
-      setIsDownloading(true);
-      try {
-        resetDismiss();
-        await updateHandle.downloadAndInstall();
-        await relaunchApp();
-      } catch (error) {
-        console.error("[AboutSection] Update failed", error);
-        toast.error(t("settings.updateFailed"));
-        try {
-          await settingsApi.checkUpdates();
-        } catch (fallbackError) {
-          console.error(
-            "[AboutSection] Failed to open fallback updater",
-            fallbackError,
-          );
-        }
-      } finally {
-        setIsDownloading(false);
-      }
-      return;
-    }
-
-    try {
-      const available = await checkUpdate();
-      if (!available) {
-        toast.success(t("settings.upToDate"), { closeButton: true });
-      }
-    } catch (error) {
-      console.error("[AboutSection] Check update failed", error);
-      toast.error(t("settings.checkUpdateFailed"));
-    }
-  }, [checkUpdate, hasUpdate, isPortable, resetDismiss, t, updateHandle]);
-
   const displayVersion = version ?? t("common.unknown");
 
   return (
@@ -318,9 +241,9 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <img src={appIcon} alt="CC Switch" className="h-5 w-5" />
+              <img src={appIcon} alt="DPCC-SWITCH" className="h-5 w-5" />
               <h4 className="text-lg font-semibold text-foreground">
-                CC Switch
+                DPCC-SWITCH
               </h4>
             </div>
             <div className="flex items-center gap-2">
@@ -334,7 +257,7 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
                   <span className="font-medium">{`v${displayVersion}`}</span>
                 )}
               </Badge>
-              {isPortable && (
+              {isPortable && APP_UPDATES_ENABLED && (
                 <Badge variant="secondary" className="gap-1.5">
                   <Info className="h-3 w-3" />
                   {t("settings.portableMode")}
@@ -343,52 +266,27 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleOpenReleaseNotes}
-              className="h-8 gap-1.5 text-xs"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              {t("settings.releaseNotes")}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleCheckUpdate}
-              disabled={isChecking || isDownloading}
-              className="h-8 gap-1.5 text-xs"
-            >
-              {isDownloading ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {t("settings.updating")}
-                </>
-              ) : hasUpdate ? (
-                <>
-                  <Download className="h-3.5 w-3.5" />
-                  {t("settings.updateTo", {
-                    version: updateInfo?.availableVersion ?? "",
-                  })}
-                </>
-              ) : isChecking ? (
-                <>
-                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                  {t("settings.checking")}
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-3.5 w-3.5" />
-                  {t("settings.checkForUpdates")}
-                </>
-              )}
-            </Button>
-          </div>
+          {APP_UPDATES_ENABLED && (
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                disabled={isChecking}
+                className="h-8 gap-1.5 text-xs"
+                onClick={() => {
+                  void checkUpdate();
+                }}
+              >
+                <RefreshCw
+                  className={isChecking ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5"}
+                />
+                {t("settings.checkForUpdates")}
+              </Button>
+            </div>
+          )}
         </div>
 
-        {hasUpdate && updateInfo && (
+        {APP_UPDATES_ENABLED && hasUpdate && updateInfo && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}

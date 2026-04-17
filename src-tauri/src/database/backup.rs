@@ -13,7 +13,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::NamedTempFile;
 
-const CC_SWITCH_SQL_EXPORT_HEADER: &str = "-- CC Switch SQLite 导出";
+const SQL_EXPORT_HEADER: &str = "-- DPCC-SWITCH SQLite Export";
+const LEGACY_SQL_EXPORT_HEADER: &str = "-- CC Switch SQLite 导出";
 
 /// Tables whose data rows are skipped when exporting for WebDAV sync.
 const SYNC_SKIP_TABLES: &[&str] = &[
@@ -165,14 +166,14 @@ impl Database {
 
     fn validate_cc_switch_sql_export(sql: &str) -> Result<(), AppError> {
         let trimmed = sql.trim_start();
-        if trimmed.starts_with(CC_SWITCH_SQL_EXPORT_HEADER) {
+        if trimmed.starts_with(SQL_EXPORT_HEADER) || trimmed.starts_with(LEGACY_SQL_EXPORT_HEADER) {
             return Ok(());
         }
 
         Err(AppError::localized(
             "backup.sql.invalid_format",
-            "仅支持导入由 CC Switch 导出的 SQL 备份文件。",
-            "Only SQL backups exported by CC Switch are supported.",
+            "仅支持导入由 DPCC-SWITCH 导出的 SQL 备份文件。",
+            "Only SQL backups exported by DPCC-SWITCH are supported.",
         ))
     }
 
@@ -392,7 +393,8 @@ impl Database {
             .unwrap_or(0);
 
         output.push_str(&format!(
-            "-- CC Switch SQLite 导出\n-- 生成时间: {timestamp}\n-- user_version: {user_version}\n"
+            "{header}\n-- 生成时间: {timestamp}\n-- user_version: {user_version}\n",
+            header = SQL_EXPORT_HEADER,
         ));
         output.push_str("PRAGMA foreign_keys=OFF;\n");
         output.push_str(&format!("PRAGMA user_version={user_version};\n"));

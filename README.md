@@ -1,6 +1,6 @@
 <div align="center">
 
-# CC Switch
+# DPCC-SWITCH
 
 ### The All-in-One Manager for Claude Code, Codex, Gemini CLI, OpenCode & OpenClaw
 
@@ -38,7 +38,7 @@ MiniMax-M2.7 is a next-generation large language model designed for autonomous e
 
 <tr>
 <td width="180"><a href="https://aigocode.com/invite/CC-SWITCH"><img src="assets/partners/logos/aigocode.png" alt="AIGoCode" width="150"></a></td>
-<td>Thanks to AIGoCode for sponsoring this project! AIGoCode is an all-in-one platform that integrates Claude Code, Codex, and the latest Gemini models, providing you with stable, efficient, and highly cost-effective AI coding services. The platform offers flexible subscription plans, zero risk of account suspension, direct access with no VPN required, and lightning-fast responses. AIGoCode has prepared a special benefit for CC Switch users: if you register via <a href="https://aigocode.com/invite/CC-SWITCH">this link</a>, you'll receive an extra 10% bonus credit on your first top-up!</td>
+<td>Thanks to AIGoCode for sponsoring this project! AIGoCode is an all-in-one platform that integrates Claude Code, Codex, and the latest Gemini models, providing you with stable, efficient, and highly cost-effective AI coding services. The platform offers flexible subscription plans, zero risk of account suspension, direct access with no VPN required, and lightning-fast responses. AIGoCode has prepared a special benefit for DPCC-SWITCH users: if you register via <a href="https://aigocode.com/invite/CC-SWITCH">this link</a>, you'll receive an extra 10% bonus credit on your first top-up!</td>
 </tr>
 
 <tr>
@@ -54,12 +54,12 @@ MiniMax-M2.7 is a next-generation large language model designed for autonomous e
 <tr>
 <td width="180"><a href="https://www.aicodemirror.com/register?invitecode=9915W3"><img src="assets/partners/logos/aicodemirror.jpg" alt="AICodeMirror" width="150"></a></td>
 <td>Thanks to AICodeMirror for sponsoring this project! AICodeMirror provides official high-stability relay services for Claude Code / Codex / Gemini CLI, with enterprise-grade concurrency, fast invoicing, and 24/7 dedicated technical support.
-Claude Code / Codex / Gemini official channels at 38% / 2% / 9% of original price, with extra discounts on top-ups! AICodeMirror offers special benefits for CC Switch users: register via <a href="https://www.aicodemirror.com/register?invitecode=9915W3">this link</a> to enjoy 20% off your first top-up, and enterprise customers can get up to 25% off!</td>
+Claude Code / Codex / Gemini official channels at 38% / 2% / 9% of original price, with extra discounts on top-ups! AICodeMirror offers special benefits for DPCC-SWITCH users: register via <a href="https://www.aicodemirror.com/register?invitecode=9915W3">this link</a> to enjoy 20% off your first top-up, and enterprise customers can get up to 25% off!</td>
 </tr>
 
 <tr>
 <td width="180"><a href="https://cubence.com/signup?code=CCSWITCH&source=ccs"><img src="assets/partners/logos/cubence.png" alt="Cubence" width="150"></a></td>
-<td>Thanks to Cubence for sponsoring this project! Cubence is a reliable and efficient API relay service provider, offering relay services for Claude Code, Codex, Gemini, and more with flexible billing options including pay-as-you-go and monthly plans. Cubence provides special discounts for CC Switch users: register using <a href="https://cubence.com/signup?code=CCSWITCH&source=ccs">this link</a> and enter the "CCSWITCH" promo code during recharge to get 10% off every top-up!</td>
+<td>Thanks to Cubence for sponsoring this project! Cubence is a reliable and efficient API relay service provider, offering relay services for Claude Code, Codex, Gemini, and more with flexible billing options including pay-as-you-go and monthly plans. Cubence provides special discounts for DPCC-SWITCH users: register using <a href="https://cubence.com/signup?code=CCSWITCH&source=ccs">this link</a> and enter the "CCSWITCH" promo code during recharge to get 10% off every top-up!</td>
 </tr>
 
 <tr>
@@ -74,27 +74,27 @@ Claude Code / Codex / Gemini official channels at 38% / 2% / 9% of original pric
 
 <tr>
 <td width="180"><a href="https://aicoding.sh/i/CCSWITCH"><img src="assets/partners/logos/aicoding.jpg" alt="AICoding" width="150"></a></td>
-<td>Thanks to AICoding.sh for sponsoring this project! AICoding.sh — Global AI Model API Relay Service at Unbeatable Prices! Claude Code at 19% of original price, GPT at just 1%! Trusted by hundreds of enterprises for cost-effective AI services. Supports Claude Code, GPT, Gemini and major domestic models, with enterprise-grade high concurrency, fast invoicing, and 24/7 dedicated technical support. CC Switch users who register via <a href="https://aicoding.sh/i/CCSWITCH">this link</a> get 10% off their first top-up!</td>
+<td>Thanks to AICoding.sh for sponsoring this project! AICoding.sh — Global AI Model API Relay Service at Unbeatable Prices! Claude Code at 19% of original price, GPT at just 1%! Trusted by hundreds of enterprises for cost-effective AI services. Supports Claude Code, GPT, Gemini and major domestic models, with enterprise-grade high concurrency, fast invoicing, and 24/7 dedicated technical support. DPCC-SWITCH users who register via <a href="https://aicoding.sh/i/CCSWITCH">this link</a> get 10% off their first top-up!</td>
 </tr>
 
 <tr>
 <td width="180"><a href="https://crazyrouter.com/register?aff=OZcm&ref=cc-switch"><img src="assets/partners/logos/crazyrouter.png" alt="Crazyrouter" width="150"></a></td>
-<td>Thanks to Crazyrouter for sponsoring this project! Crazyrouter is a high-performance AI API aggregation platform — one API key for 300+ models including Claude Code, Codex, Gemini CLI, and more. All models at 55% of official pricing with auto-failover, smart routing, and unlimited concurrency. Crazyrouter offers an exclusive deal for CC Switch users: register via <a href="https://crazyrouter.com/register?aff=OZcm&ref=cc-switch">this link</a>  to get <strong>$2 free credit</strong> instantly, plus enter promo code `CCSWITCH` on your first top-up for an extra <strong>30% bonus credit</strong>! </td>
+<td>Thanks to Crazyrouter for sponsoring this project! Crazyrouter is a high-performance AI API aggregation platform — one API key for 300+ models including Claude Code, Codex, Gemini CLI, and more. All models at 55% of official pricing with auto-failover, smart routing, and unlimited concurrency. Crazyrouter offers an exclusive deal for DPCC-SWITCH users: register via <a href="https://crazyrouter.com/register?aff=OZcm&ref=cc-switch">this link</a>  to get <strong>$2 free credit</strong> instantly, plus enter promo code `CCSWITCH` on your first top-up for an extra <strong>30% bonus credit</strong>! </td>
 </tr>
 
 <tr>
 <td width="180"><a href="https://www.right.codes/register?aff=CCSWITCH"><img src="assets/partners/logos/rightcode.jpg" alt="RightCode" width="150"></a></td>
-<td>Thank you to Right Code for sponsoring this project! Right Code reliably provides routing services for models such as Claude Code, Codex, and Gemini. It features a highly cost-effective Codex monthly subscription plan and <strong>supports quota rollovers—unused quota from one day can be carried over and used the next day.</strong> Invoices are available upon top-up. Enterprise and team users can receive dedicated one-on-one support. Right Code also offers an exclusive discount for CC Switch users: register via <a href="https://www.right.codes/register?aff=CCSWITCH">this link</a>, and with every top-up you will receive pay-as-you-go credit equivalent to 25% of the amount paid.</td>
+<td>Thank you to Right Code for sponsoring this project! Right Code reliably provides routing services for models such as Claude Code, Codex, and Gemini. It features a highly cost-effective Codex monthly subscription plan and <strong>supports quota rollovers—unused quota from one day can be carried over and used the next day.</strong> Invoices are available upon top-up. Enterprise and team users can receive dedicated one-on-one support. Right Code also offers an exclusive discount for DPCC-SWITCH users: register via <a href="https://www.right.codes/register?aff=CCSWITCH">this link</a>, and with every top-up you will receive pay-as-you-go credit equivalent to 25% of the amount paid.</td>
 </tr>
 
 <tr>
 <td width="180"><a href="https://www.sssaicode.com/register?ref=DCP0SM"><img src="assets/partners/logos/sssaicode.png" alt="SSSAiCode" width="150"></a></td>
-<td>Thanks to SSSAiCode for sponsoring this project! SSSAiCode is a stable and reliable API relay service, dedicated to providing stable, reliable, and affordable Claude and Codex model services, <strong>offering high cost-effective official Claude service at just ¥0.5/$ equivalent</strong>, supporting monthly and pay-as-you-go billing plans with same-day fast invoicing. SSSAiCode offers a special deal for CC Switch users: register via <a href="https://www.sssaicode.com/register?ref=DCP0SM">this link</a> to enjoy $10 extra credit on every top-up!</td>
+<td>Thanks to SSSAiCode for sponsoring this project! SSSAiCode is a stable and reliable API relay service, dedicated to providing stable, reliable, and affordable Claude and Codex model services, <strong>offering high cost-effective official Claude service at just ¥0.5/$ equivalent</strong>, supporting monthly and pay-as-you-go billing plans with same-day fast invoicing. SSSAiCode offers a special deal for DPCC-SWITCH users: register via <a href="https://www.sssaicode.com/register?ref=DCP0SM">this link</a> to enjoy $10 extra credit on every top-up!</td>
 </tr>
 
 <tr>
 <td width="180"><a href="https://www.openclaudecode.cn/register?aff=aOYQ"><img src="assets/partners/logos/mikubanner.svg" alt="Micu" width="150"></a></td>
-<td>Thanks to Micu API for sponsoring this project! Micu API is a global LLM relay service provider dedicated to delivering the best cost-performance ratio with high stability. Backed by a registered enterprise for core assurance, eliminating any risk of service discontinuation, with fast official invoicing support! We champion "zero cost to try": top up from as low as ¥1 with no minimum, and get fee-free refunds anytime! Micu API offers an exclusive deal for CC Switch users: register via <a href="https://www.openclaudecode.cn/register?aff=aOYQ">this link</a> and enter promo code "ccswitch" when topping up to enjoy a <strong>10% discount</strong>!</td>
+<td>Thanks to Micu API for sponsoring this project! Micu API is a global LLM relay service provider dedicated to delivering the best cost-performance ratio with high stability. Backed by a registered enterprise for core assurance, eliminating any risk of service discontinuation, with fast official invoicing support! We champion "zero cost to try": top up from as low as ¥1 with no minimum, and get fee-free refunds anytime! Micu API offers an exclusive deal for DPCC-SWITCH users: register via <a href="https://www.openclaudecode.cn/register?aff=aOYQ">this link</a> and enter promo code "ccswitch" when topping up to enjoy a <strong>10% discount</strong>!</td>
 </tr>
 
 <tr>
@@ -120,18 +120,18 @@ Claude Code / Codex / Gemini official channels at 38% / 2% / 9% of original pric
 <tr>
 <td width="180"><a href="https://ddshub.short.gy/ccswitch"><img src="assets/partners/logos/dds.png" alt="DDS" width="150"></a></td>
 <td>Thanks to DDS for sponsoring this project! DDS Hub is a reliable and high-performance Claude API proxy service. We provides cost-effective domestic Claude direct acceleration services for both individual and enterprise users. We offer stable and low-latency Claude Max number pools, with full support for Claude Haiku, Opus, Sonnet and other flagship models. Invoices are available for recharges of 1000 RMB or more. Enterprise customers can also enjoy customized grouping and dedicated technical support services.
-Exclusive benefit for CC Switch users: Register via <a href="https://ddshub.short.gy/ccswitch">the link </a>below and enjoy an extra 10% credit on your first recharge (please contact the group admin to claim after recharging)!</td>
+Exclusive benefit for DPCC-SWITCH users: Register via <a href="https://ddshub.short.gy/ccswitch">the link </a>below and enjoy an extra 10% credit on your first recharge (please contact the group admin to claim after recharging)!</td>
 </tr>
 
 </table>
 
 </details>
 
-## Why CC Switch?
+## Why DPCC-SWITCH?
 
 Modern AI-powered coding relies on CLI tools like Claude Code, Codex, Gemini CLI, OpenCode, and OpenClaw — but each has its own configuration format. Switching API providers means manually editing JSON, TOML, or `.env` files, and there is no unified way to manage MCP and Skills across multiple tools.
 
-**CC Switch** gives you a single desktop app to manage all five CLI tools. Instead of editing config files by hand, you get a visual interface to import providers with one click, switch between them instantly, with 50+ built-in provider presets, unified MCP and Skills management, and system tray quick switching — all backed by a reliable SQLite database with atomic writes that protect your configs from corruption.
+**DPCC-SWITCH** gives you a single desktop app to manage all five CLI tools. Instead of editing config files by hand, you get a visual interface to import providers with one click, switch between them instantly, with 50+ built-in provider presets, unified MCP and Skills management, and system tray quick switching — all backed by a reliable SQLite database with atomic writes that protect your configs from corruption.
 
 - **One App, Five CLI Tools** — Manage Claude Code, Codex, Gemini CLI, OpenCode, and OpenClaw from a single interface
 - **No More Manual Editing** — 50+ provider presets including AWS Bedrock, NVIDIA NIM, and community relays; just pick and switch
@@ -186,9 +186,9 @@ Modern AI-powered coding relies on CLI tools like Claude Code, Codex, Gemini CLI
 ## FAQ
 
 <details>
-<summary><strong>Which AI CLI tools does CC Switch support?</strong></summary>
+<summary><strong>Which AI CLI tools does DPCC-SWITCH support?</strong></summary>
 
-CC Switch supports five tools: **Claude Code**, **Codex**, **Gemini CLI**, **OpenCode**, and **OpenClaw**. Each tool has dedicated provider presets and configuration management.
+DPCC-SWITCH supports five tools: **Claude Code**, **Codex**, **Gemini CLI**, **OpenCode**, and **OpenClaw**. Each tool has dedicated provider presets and configuration management.
 
 </details>
 
@@ -202,21 +202,21 @@ For most tools, yes — restart your terminal or the CLI tool for changes to tak
 <details>
 <summary><strong>My plugin configuration disappeared after switching providers — what happened?</strong></summary>
 
-CC Switch provides a "Shared Config Snippet" feature to pass common data (beyond API keys and endpoints) between providers. Go to "Edit Provider" → "Shared Config Panel" → click "Extract from Current Provider" to save all common data. When creating a new provider, check "Write Shared Config" (enabled by default) to include plugin data in the new provider. All your configuration items are preserved in the default provider imported when you first launched the app.
+DPCC-SWITCH provides a "Shared Config Snippet" feature to pass common data (beyond API keys and endpoints) between providers. Go to "Edit Provider" → "Shared Config Panel" → click "Extract from Current Provider" to save all common data. When creating a new provider, check "Write Shared Config" (enabled by default) to include plugin data in the new provider. All your configuration items are preserved in the default provider imported when you first launched the app.
 
 </details>
 
 <details>
 <summary><strong>macOS installation</strong></summary>
 
-CC Switch for macOS is code-signed and notarized by Apple. You can download and install it directly — no extra steps needed. We recommend using the `.dmg` installer.
+DPCC-SWITCH for macOS is code-signed and notarized by Apple. You can download and install it directly — no extra steps needed. We recommend using the `.dmg` installer.
 
 </details>
 
 <details>
 <summary><strong>Why can't I delete the currently active provider?</strong></summary>
 
-CC Switch follows a "minimal intrusion" design principle — even if you uninstall the app, your CLI tools will continue to work normally. The system always keeps one active configuration, because deleting all configurations would make the corresponding CLI tool unusable. If you rarely use a specific CLI tool, you can hide it in Settings. To switch back to official login, see the next question.
+DPCC-SWITCH follows a "minimal intrusion" design principle — even if you uninstall the app, your CLI tools will continue to work normally. The system always keeps one active configuration, because deleting all configurations would make the corresponding CLI tool unusable. If you rarely use a specific CLI tool, you can hide it in Settings. To switch back to official login, see the next question.
 
 </details>
 
@@ -272,7 +272,7 @@ For detailed guides on every feature, check out the **[User Manual](docs/user-ma
 
 ### Windows Users
 
-Download the latest `CC-Switch-v{version}-Windows.msi` installer or `CC-Switch-v{version}-Windows-Portable.zip` portable version from the [Releases](../../releases) page.
+Download the latest `DPCC-SWITCH-v{version}-Windows.msi` installer or `DPCC-SWITCH-v{version}-Windows-Portable.zip` portable version from the [Releases](../../releases) page.
 
 ### macOS Users
 
@@ -291,9 +291,9 @@ brew upgrade --cask cc-switch
 
 **Method 2: Manual Download**
 
-Download `CC-Switch-v{version}-macOS.dmg` (recommended) or `.zip` from the [Releases](../../releases) page.
+Download `DPCC-SWITCH-v{version}-macOS.dmg` (recommended) or `.zip` from the [Releases](../../releases) page.
 
-> **Note**: CC Switch for macOS is code-signed and notarized by Apple. You can install and open it directly.
+> **Note**: DPCC-SWITCH for macOS is code-signed and notarized by Apple. You can install and open it directly.
 
 ### Arch Linux Users
 
@@ -307,9 +307,9 @@ paru -S cc-switch-bin
 
 Download the latest Linux build from the [Releases](../../releases) page:
 
-- `CC-Switch-v{version}-Linux.deb` (Debian/Ubuntu)
-- `CC-Switch-v{version}-Linux.rpm` (Fedora/RHEL/openSUSE)
-- `CC-Switch-v{version}-Linux.AppImage` (Universal)
+- `DPCC-SWITCH-v{version}-Linux.deb` (Debian/Ubuntu)
+- `DPCC-SWITCH-v{version}-Linux.rpm` (Fedora/RHEL/openSUSE)
+- `DPCC-SWITCH-v{version}-Linux.AppImage` (Universal)
 
 > **Flatpak**: Not included in official releases. You can build it yourself from the `.deb` — see [`flatpak/README.md`](flatpak/README.md) for instructions.
 
