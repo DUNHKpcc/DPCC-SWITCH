@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
 import type {
+  InstallerDependencyName,
   InstallerEnvironment,
   InstallerRunResult,
   ManualInstallCommandGroup,
@@ -15,6 +16,12 @@ export const installerApi = {
 
   installMissing(): Promise<InstallerRunResult> {
     return invoke("install_missing_dependencies");
+  },
+
+  installSelected(
+    dependencies: InstallerDependencyName[],
+  ): Promise<InstallerRunResult> {
+    return invoke("install_selected_dependencies", { dependencies });
   },
 
   getManualCommands(): Promise<ManualInstallCommandGroup[]> {

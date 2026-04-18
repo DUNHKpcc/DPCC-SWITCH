@@ -639,6 +639,16 @@
       "manual": "手動対応"
     },
     "localEnvCheck": "ローカル環境チェック",
+    "installAllMissingDependencies": "不足している依存関係を一括インストール",
+    "installSelectedDependencies": "選択した依存関係をインストール",
+    "installSelectedDependenciesCount": "選択した依存関係をインストール（{{count}}）",
+    "inlineManualCommands": "手動コマンド",
+    "inlineManualCommandsHidden": "手動コマンドを隠す",
+    "manualInstall": "手動インストール",
+    "selectDependency": "{{name}} を選択",
+    "installDependency": "{{name}} をインストール",
+    "manualInstallDependency": "{{name}} を手動インストール",
+    "installNodeIncludesNpm": "Node.js をインストール（npm を含む）",
     "envBadge": {
       "wsl": "WSL",
       "windows": "Win",

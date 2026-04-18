@@ -21,10 +21,10 @@ export function LocalEnvironmentCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
       whileHover={{ scale: 1.02 }}
-      className="flex flex-col gap-2 rounded-xl border border-border bg-gradient-to-br from-card/80 to-card/40 p-4 shadow-sm transition-colors hover:border-primary/30"
+      className="flex h-[8rem] min-h-[8rem] flex-col gap-1.5 overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card/80 to-card/40 p-3.5 shadow-sm transition-colors hover:border-primary/30"
     >
       {header}
-      {footer ? <div className="space-y-1.5">{footer}</div> : null}
+      {footer ? <div className="min-h-0 flex-1 overflow-hidden space-y-1.5">{footer}</div> : null}
     </motion.div>
   );
 }

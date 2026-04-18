@@ -16,6 +16,14 @@ pub async fn install_missing_dependencies(
 }
 
 #[tauri::command]
+pub async fn install_selected_dependencies(
+    app: AppHandle,
+    dependencies: Vec<crate::services::installer::types::InstallerDependencyName>,
+) -> Result<crate::services::installer::install::InstallerRunResult, String> {
+    crate::services::installer::install::install_selected_dependencies(&app, &dependencies).await
+}
+
+#[tauri::command]
 pub async fn get_manual_install_commands(
 ) -> Result<Vec<crate::services::installer::install::ManualInstallCommandGroup>, String> {
     Ok(crate::services::installer::install::get_manual_install_commands(

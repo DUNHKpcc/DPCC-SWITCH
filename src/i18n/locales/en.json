@@ -639,6 +639,16 @@
       "manual": "Manual"
     },
     "localEnvCheck": "Local environment check",
+    "installAllMissingDependencies": "Install All Missing Dependencies",
+    "installSelectedDependencies": "Install Selected Dependencies",
+    "installSelectedDependenciesCount": "Install Selected Dependencies ({{count}})",
+    "inlineManualCommands": "Manual Commands",
+    "inlineManualCommandsHidden": "Hide Manual Commands",
+    "manualInstall": "Manual Install",
+    "selectDependency": "Select {{name}}",
+    "installDependency": "Install {{name}}",
+    "manualInstallDependency": "Manual install {{name}}",
+    "installNodeIncludesNpm": "Install Node.js (includes npm)",
     "envBadge": {
       "wsl": "WSL",
       "windows": "Win",

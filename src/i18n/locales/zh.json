@@ -639,6 +639,16 @@
       "manual": "需手动处理"
     },
     "localEnvCheck": "本地环境检查",
+    "installAllMissingDependencies": "一键安装全部缺失依赖",
+    "installSelectedDependencies": "安装所选依赖",
+    "installSelectedDependenciesCount": "安装所选依赖（{{count}}）",
+    "inlineManualCommands": "手动命令",
+    "inlineManualCommandsHidden": "隐藏手动命令",
+    "manualInstall": "手动安装",
+    "selectDependency": "选择 {{name}}",
+    "installDependency": "安装 {{name}}",
+    "manualInstallDependency": "手动安装 {{name}}",
+    "installNodeIncludesNpm": "安装 Node.js（含 npm）",
     "envBadge": {
       "wsl": "WSL",
       "windows": "Win",

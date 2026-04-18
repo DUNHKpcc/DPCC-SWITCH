@@ -94,6 +94,56 @@ pub fn build_install_plan(
     ordered
 }
 
+fn is_pending_dependency(dependency: &InstallerDependencyStatus) -> bool {
+    matches!(
+        dependency.state,
+        InstallerDependencyState::Missing | InstallerDependencyState::Outdated
+    )
+}
+
+pub fn build_selected_install_plan(
+    requested: &[InstallerDependencyName],
+    dependencies: &[InstallerDependencyStatus],
+) -> Vec<InstallerDependencyName> {
+    let mut filtered: Vec<InstallerDependencyStatus> = dependencies
+        .iter()
+        .filter(|dependency| requested.contains(&dependency.name))
+        .cloned()
+        .collect();
+
+    let requested_dependency_needs_node = dependencies.iter().any(|dependency| {
+        requested.contains(&dependency.name)
+            && is_pending_dependency(dependency)
+            && matches!(
+                dependency.name,
+                InstallerDependencyName::Pnpm
+                    | InstallerDependencyName::Codex
+                    | InstallerDependencyName::Gemini
+            )
+    });
+
+    let node_or_npm_pending = dependencies.iter().any(|dependency| {
+        matches!(
+            dependency.name,
+            InstallerDependencyName::Node | InstallerDependencyName::Npm
+        ) && is_pending_dependency(dependency)
+    });
+
+    if requested_dependency_needs_node && node_or_npm_pending {
+        filtered.push(InstallerDependencyStatus {
+            name: InstallerDependencyName::Node,
+            kind: super::types::InstallerDependencyKind::Core,
+            state: InstallerDependencyState::Missing,
+            version: None,
+            path: None,
+            message: None,
+            auto_install_supported: true,
+        });
+    }
+
+    build_install_plan(&filtered)
+}
+
 pub fn get_manual_install_commands(platform: &str) -> Vec<ManualInstallCommandGroup> {
     let node_command = match platform {
         "linux" => "Install Node.js with your package manager or nvm.",
@@ -274,9 +324,10 @@ fn progress_message(name: InstallerDependencyName) -> String {
     format!("Preparing {name:?} installation...")
 }
 
-pub async fn install_missing_dependencies(app: &AppHandle) -> Result<InstallerRunResult, String> {
-    let environment = super::detect::detect_installer_environment();
-    let plan = build_install_plan(&environment.dependencies);
+async fn execute_install_plan(
+    app: &AppHandle,
+    plan: Vec<InstallerDependencyName>,
+) -> Result<InstallerRunResult, String> {
     let platform = std::env::consts::OS;
     let mut steps = Vec::new();
 
@@ -309,9 +360,26 @@ pub async fn install_missing_dependencies(app: &AppHandle) -> Result<InstallerRu
     Ok(normalize_install_result(steps))
 }
 
+pub async fn install_missing_dependencies(app: &AppHandle) -> Result<InstallerRunResult, String> {
+    let environment = super::detect::detect_installer_environment();
+    let plan = build_install_plan(&environment.dependencies);
+    execute_install_plan(app, plan).await
+}
+
+pub async fn install_selected_dependencies(
+    app: &AppHandle,
+    requested: &[InstallerDependencyName],
+) -> Result<InstallerRunResult, String> {
+    let environment = super::detect::detect_installer_environment();
+    let plan = build_selected_install_plan(requested, &environment.dependencies);
+    execute_install_plan(app, plan).await
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{build_install_plan, get_manual_install_commands};
+    use super::{
+        build_install_plan, build_selected_install_plan, get_manual_install_commands,
+    };
     use crate::services::installer::types::{
         InstallerDependencyKind, InstallerDependencyName, InstallerDependencyState,
         InstallerDependencyStatus,
@@ -401,6 +469,60 @@ mod tests {
             vec![
                 InstallerDependencyName::Node,
                 InstallerDependencyName::Pnpm,
+            ]
+        );
+    }
+
+    #[test]
+    fn selected_install_plan_puts_node_before_requested_pnpm() {
+        let plan = build_selected_install_plan(
+            &[InstallerDependencyName::Pnpm],
+            &[
+                status(
+                    InstallerDependencyName::Node,
+                    InstallerDependencyKind::Core,
+                    InstallerDependencyState::Missing,
+                ),
+                status(
+                    InstallerDependencyName::Pnpm,
+                    InstallerDependencyKind::Core,
+                    InstallerDependencyState::Missing,
+                ),
+            ],
+        );
+
+        assert_eq!(
+            plan,
+            vec![
+                InstallerDependencyName::Node,
+                InstallerDependencyName::Pnpm,
+            ]
+        );
+    }
+
+    #[test]
+    fn selected_install_plan_adds_node_for_npm_backed_tools() {
+        let plan = build_selected_install_plan(
+            &[InstallerDependencyName::Codex],
+            &[
+                status(
+                    InstallerDependencyName::Npm,
+                    InstallerDependencyKind::Core,
+                    InstallerDependencyState::Missing,
+                ),
+                status(
+                    InstallerDependencyName::Codex,
+                    InstallerDependencyKind::Tool,
+                    InstallerDependencyState::Missing,
+                ),
+            ],
+        );
+
+        assert_eq!(
+            plan,
+            vec![
+                InstallerDependencyName::Node,
+                InstallerDependencyName::Codex,
             ]
         );
     }

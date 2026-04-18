@@ -1116,6 +1116,7 @@ pub fn run() {
             commands::delete_skill_backup,
             commands::install_skill_unified,
             commands::install_missing_dependencies,
+            commands::install_selected_dependencies,
             commands::uninstall_skill_unified,
             commands::restore_skill_backup,
             commands::toggle_skill_app,
