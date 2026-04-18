@@ -380,7 +380,7 @@ export function DeepLinkImportDialog() {
                     <div className="font-medium text-sm text-muted-foreground">
                       {t("deeplink.homepage")}
                     </div>
-                    <div className="col-span-2 text-sm break-all text-blue-600 dark:text-blue-400">
+                    <div className="col-span-2 text-sm break-all text-foreground">
                       {request.homepage}
                     </div>
                   </div>
@@ -501,7 +501,7 @@ export function DeepLinkImportDialog() {
                           {t("deeplink.configSource")}
                         </div>
                         <div className="col-span-2 text-sm">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium">
+                          <span className="inline-flex items-center rounded-md border border-border-default bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
                             {configSource === "base64"
                               ? t("deeplink.configEmbedded")
                               : t("deeplink.configRemote")}

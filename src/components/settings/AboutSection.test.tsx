@@ -326,9 +326,25 @@ test("keeps dependency cards at the initial loading height after detection compl
   expect(screen.getByTestId("local-env-card-node").className).toBe(initialClassName);
 });
 
+test("adds horizontal gutter to dependency grids so hovered edge cards do not clip", async () => {
+  render(<AboutSection isPortable={false} />);
+
+  await screen.findByTestId("local-env-card-node");
+
+  const coreGrid = screen.getByTestId("local-env-core-grid");
+  const toolGrid = screen.getByTestId("local-env-tool-grid");
+
+  expect(coreGrid.className).toContain("px-2");
+  expect(toolGrid.className).toContain("px-2");
+});
+
 test("renders inline installer actions and removes the installer launcher button", async () => {
   render(<AboutSection isPortable={false} />);
 
+  expect(screen.getByText("© SunJiaHao")).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Check for Updates" }),
+  ).not.toBeInTheDocument();
   expect(
     await screen.findByRole("button", {
       name: "Install All Missing Dependencies",

@@ -275,6 +275,16 @@ it("adds bottom padding to the about tab content", async () => {
   expect(screen.getByTestId("tab-about").className).toContain("pb-4");
 });
 
+it("keeps horizontal overflow visible for the about tab scroller", async () => {
+  renderSettingsPage({ defaultTab: "about" });
+
+  const scroller = document.querySelector(".overflow-y-auto");
+
+  expect(scroller).not.toBeNull();
+  expect(scroller?.className).toContain("overflow-x-visible");
+  expect(scroller?.className).not.toContain("overflow-x-hidden");
+});
+
 describe("SettingsPage Component", () => {
   beforeEach(async () => {
     tMock.mockImplementation((key: string) => key);

@@ -332,7 +332,7 @@ export function OpenClawFormFields({
                   <span
                     className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
                       index === 0
-                        ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
+                        ? "bg-black/10 text-foreground dark:bg-white/10 dark:text-foreground"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >

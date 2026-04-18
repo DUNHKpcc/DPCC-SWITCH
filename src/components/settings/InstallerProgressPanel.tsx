@@ -17,10 +17,9 @@ const stageLabelKey: Record<InstallProgressStage, string> = {
 
 const stageClassName: Record<InstallProgressStage, string> = {
   queued: "border-border-default bg-muted text-muted-foreground",
-  downloading: "border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-300",
-  installing: "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300",
-  verifying:
-    "border-violet-500/20 bg-violet-500/10 text-violet-700 dark:text-violet-300",
+  downloading: "border-border-default bg-muted/80 text-foreground",
+  installing: "border-border-default bg-muted/80 text-foreground",
+  verifying: "border-border-default bg-muted/80 text-foreground",
   completed:
     "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
   failed: "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300",

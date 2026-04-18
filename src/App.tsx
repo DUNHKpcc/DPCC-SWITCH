@@ -82,6 +82,7 @@ import EnvPanel from "@/components/openclaw/EnvPanel";
 import ToolsPanel from "@/components/openclaw/ToolsPanel";
 import AgentsDefaultsPanel from "@/components/openclaw/AgentsDefaultsPanel";
 import OpenClawHealthBanner from "@/components/openclaw/OpenClawHealthBanner";
+import appIcon from "@/assets/icons/app-icon.png";
 
 type View =
   | "providers"
@@ -225,7 +226,7 @@ function App() {
   const skillsPageRef = useRef<any>(null);
   const unifiedSkillsPanelRef = useRef<any>(null);
   const addActionButtonClass =
-    "bg-orange-500 hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white shadow-lg shadow-orange-500/30 dark:shadow-orange-500/40 rounded-full w-8 h-8";
+    "bg-black hover:bg-black/85 dark:bg-white dark:hover:bg-white/85 text-white dark:text-black shadow-lg shadow-black/20 dark:shadow-white/10 rounded-full w-8 h-8";
 
   const {
     isRunning: isProxyRunning,
@@ -1137,7 +1138,12 @@ function App() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <div className="relative inline-flex items-center">
+                <div className="relative inline-flex items-center gap-2">
+                  <img
+                    src={appIcon}
+                    alt="DPCC-SWITCH"
+                    className="h-5 w-5 shrink-0"
+                  />
                   <a
                     href="https://github.com/farion1231/cc-switch"
                     target="_blank"
@@ -1146,7 +1152,7 @@ function App() {
                       "text-xl font-semibold transition-colors",
                       isProxyRunning && isCurrentAppTakeoverActive
                         ? "text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        : "text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300",
+                        : "text-foreground hover:text-foreground/75",
                     )}
                   >
                     DPCC-SWITCH
@@ -1443,6 +1449,8 @@ function App() {
                     <Button
                       onClick={() => setIsAddOpen(true)}
                       size="icon"
+                      title={t("header.addProvider")}
+                      aria-label={t("header.addProvider")}
                       className={`ml-2 ${addActionButtonClass}`}
                     >
                       <Plus className="w-5 h-5" />

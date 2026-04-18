@@ -241,6 +241,36 @@ describe("App integration with MSW", () => {
     });
   });
 
+  it("renders the app logo beside the DPCC-SWITCH title", async () => {
+    const { default: App } = await import("@/App");
+    renderApp(App);
+
+    await waitFor(() =>
+      expect(screen.getByTestId("provider-list").textContent).toContain(
+        "claude-1",
+      ),
+    );
+
+    expect(screen.getByAltText("DPCC-SWITCH")).toBeInTheDocument();
+    expect(screen.getByText("DPCC-SWITCH")).toBeInTheDocument();
+  });
+
+  it("renders the header add button in black and white", async () => {
+    const { default: App } = await import("@/App");
+    renderApp(App);
+
+    await waitFor(() =>
+      expect(screen.getByTestId("provider-list").textContent).toContain(
+        "claude-1",
+      ),
+    );
+
+    const addButton = screen.getByTitle("header.addProvider");
+    expect(addButton.className).toContain("bg-black");
+    expect(addButton.className).toContain("text-white");
+    expect(addButton.className).not.toContain("orange");
+  });
+
   it("duplicates openclaw providers with a generated key that avoids live-only ids", async () => {
     setProviders("openclaw", {
       deepseek: {

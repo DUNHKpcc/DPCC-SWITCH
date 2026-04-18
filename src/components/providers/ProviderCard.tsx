@@ -250,7 +250,7 @@ export function ProviderCard({
           : "hover:border-border-active",
         shouldUseGreen &&
           "border-emerald-500/60 shadow-sm shadow-emerald-500/10",
-        shouldUseBlue && "border-blue-500/60 shadow-sm shadow-blue-500/10",
+        shouldUseBlue && "border-primary/40 shadow-sm shadow-black/10 dark:shadow-white/10",
         !(isActiveProvider || hasPersistentConfigHighlight) &&
           "hover:shadow-sm",
         dragHandleProps?.isDragging &&
@@ -261,7 +261,7 @@ export function ProviderCard({
         className={cn(
           "absolute inset-0 bg-gradient-to-r to-transparent transition-opacity duration-500 pointer-events-none",
           shouldUseGreen && "from-emerald-500/10",
-          shouldUseBlue && "from-blue-500/10",
+          shouldUseBlue && "from-primary/10",
           !shouldUseGreen && !shouldUseBlue && "from-primary/10",
           isActiveProvider || hasPersistentConfigHighlight
             ? "opacity-100"
@@ -343,7 +343,7 @@ export function ProviderCard({
                 className={cn(
                   "inline-flex items-center text-sm max-w-[280px]",
                   isClickableUrl
-                    ? "text-blue-500 transition-colors hover:underline dark:text-blue-400 cursor-pointer"
+                    ? "cursor-pointer text-foreground transition-colors hover:underline"
                     : "text-muted-foreground cursor-default",
                 )}
                 title={displayUrl}

@@ -480,7 +480,7 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                           <Button
                             variant="secondary"
                             size="icon"
-                            className="size-7 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-950/60"
+                            className="size-7 bg-muted text-foreground hover:bg-muted/80"
                             aria-label={t(
                               "sessionManager.exitBatchModeTooltip",
                               {
@@ -521,7 +521,7 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                                 size="icon"
                                 className={
                                   selectionMode
-                                    ? "size-7 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-950/60"
+                                    ? "size-7 bg-muted text-foreground hover:bg-muted/80"
                                     : "size-7"
                                 }
                                 aria-label={

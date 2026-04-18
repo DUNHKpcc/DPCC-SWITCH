@@ -11,7 +11,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 210 100% 56%;
+    --primary: 0 0% 8%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 4.8% 95.9%;
@@ -27,7 +27,7 @@
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 210 100% 56%;
+    --ring: 0 0% 12%;
 
     --radius: 0.5rem;
   }
@@ -40,8 +40,8 @@
     --popover: 240 5% 16%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 210 100% 54%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 8%;
 
     --secondary: 240 5% 18%;
     --secondary-foreground: 0 0% 98%;
@@ -56,7 +56,7 @@
 
     --border: 240 5% 24%;
     --input: 240 5% 24%;
-    --ring: 210 100% 54%;
+    --ring: 0 0% 88%;
   }
 }
 
@@ -90,13 +90,13 @@
 }
 
 .glass-card-active {
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.22);
 }
 
 .dark .glass-card-active {
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .glass-header {
@@ -150,7 +150,7 @@ html.dark {
 }
 
 *:focus-visible {
-  @apply outline-2 outline-blue-500 outline-offset-2;
+  @apply outline-2 outline-black outline-offset-2 dark:outline-white;
 }
 
 @layer utilities {

@@ -88,7 +88,7 @@ const ENV_BADGE_CONFIG: Record<
   windows: {
     labelKey: "settings.envBadge.windows",
     className:
-      "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+      "bg-black/5 text-foreground border-border-default dark:bg-white/10 dark:text-foreground",
   },
   macos: {
     labelKey: "settings.envBadge.macos",
@@ -111,7 +111,7 @@ const DEPENDENCY_STATE_CLASS_NAME: Record<InstallerDependencyState, string> = {
     "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300",
   broken:
     "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300",
-  manual: "border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+  manual: "border-border-default bg-muted text-foreground",
 };
 
 const DEPENDENCY_STATE_LABEL_KEY: Record<InstallerDependencyState, string> = {
@@ -122,7 +122,7 @@ const DEPENDENCY_STATE_LABEL_KEY: Record<InstallerDependencyState, string> = {
   manual: "settings.installerDependencyState.manual",
 };
 
-const LOCAL_ENV_GRID_CLASS_NAME = "grid gap-3 sm:grid-cols-2 lg:grid-cols-4";
+const LOCAL_ENV_GRID_CLASS_NAME = "grid gap-3 px-2 sm:grid-cols-2 lg:grid-cols-4";
 const CORE_DEPENDENCY_ICON_SRC = {
   node: nodeIcon,
   npm: npmIcon,
@@ -173,8 +173,6 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
   const {
     hasUpdate,
     updateInfo,
-    checkUpdate,
-    isChecking,
   } = useUpdate();
 
   const [wslShellByTool, setWslShellByTool] = useState<
@@ -656,26 +654,9 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
             </div>
           </div>
 
-          {APP_UPDATES_ENABLED ? (
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                disabled={isChecking}
-                className="h-8 gap-1.5 text-xs"
-                onClick={() => {
-                  void checkUpdate();
-                }}
-              >
-                <RefreshCw
-                  className={
-                    isChecking ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5"
-                  }
-                />
-                {t("settings.checkForUpdates")}
-              </Button>
-            </div>
-          ) : null}
+          <div className="text-xs text-muted-foreground sm:text-right">
+            © SunJiaHao
+          </div>
         </div>
 
         {APP_UPDATES_ENABLED && hasUpdate && updateInfo ? (
