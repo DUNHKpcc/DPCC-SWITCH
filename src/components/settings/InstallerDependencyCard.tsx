@@ -1,17 +1,23 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import type {
   InstallerDependencyState,
   InstallerDependencyStatus,
 } from "@/types/installer";
 
-const stateLabel: Record<InstallerDependencyState, string> = {
-  installed: "Installed",
-  missing: "Missing",
-  outdated: "Outdated",
-  broken: "Broken",
-  manual: "Manual",
+const stateLabelKey: Record<InstallerDependencyState, string> = {
+  installed: "settings.installerDependencyState.installed",
+  missing: "settings.installerDependencyState.missing",
+  outdated: "settings.installerDependencyState.outdated",
+  broken: "settings.installerDependencyState.broken",
+  manual: "settings.installerDependencyState.manual",
+};
+
+const kindLabelKey: Record<InstallerDependencyStatus["kind"], string> = {
+  core: "settings.installerDependencyKind.core",
+  tool: "settings.installerDependencyKind.tool",
 };
 
 const stateClassName: Record<InstallerDependencyState, string> = {
@@ -33,6 +39,8 @@ interface InstallerDependencyCardProps {
 export function InstallerDependencyCard({
   dependency,
 }: InstallerDependencyCardProps) {
+  const { t } = useTranslation();
+
   return (
     <Card className="h-full border-border-default/80">
       <CardHeader className="gap-3 space-y-0 pb-4">
@@ -42,17 +50,26 @@ export function InstallerDependencyCard({
               {dependency.name}
             </CardTitle>
             <p className="text-sm text-muted-foreground capitalize">
-              {dependency.kind}
+              {t(kindLabelKey[dependency.kind], {
+                defaultValue: dependency.kind,
+              })}
             </p>
           </div>
           <Badge className={cn("capitalize", stateClassName[dependency.state])}>
-            {stateLabel[dependency.state]}
+            {t(stateLabelKey[dependency.state], {
+              defaultValue: dependency.state,
+            })}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground">
-          <span>{dependency.version ?? "Version unavailable"}</span>
+          <span>
+            {dependency.version ??
+              t("settings.installerVersionUnavailable", {
+                defaultValue: "Version unavailable",
+              })}
+          </span>
           {dependency.path ? (
             <span className="break-all">{dependency.path}</span>
           ) : null}

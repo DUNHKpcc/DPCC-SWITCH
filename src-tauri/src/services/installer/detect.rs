@@ -48,6 +48,11 @@ pub fn detect_installer_environment() -> InstallerEnvironment {
             InstallerDependencyKind::Core,
         ),
         detect_binary(
+            "pnpm",
+            InstallerDependencyName::Pnpm,
+            InstallerDependencyKind::Core,
+        ),
+        detect_binary(
             "git",
             InstallerDependencyName::Git,
             InstallerDependencyKind::Core,

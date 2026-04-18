@@ -2,7 +2,18 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import type { InstallExecutionStep, InstallProgressStage } from "@/types/installer";
+
+const stageLabelKey: Record<InstallProgressStage, string> = {
+  queued: "settings.installerProgressStage.queued",
+  downloading: "settings.installerProgressStage.downloading",
+  installing: "settings.installerProgressStage.installing",
+  verifying: "settings.installerProgressStage.verifying",
+  completed: "settings.installerProgressStage.completed",
+  failed: "settings.installerProgressStage.failed",
+  manual: "settings.installerProgressStage.manual",
+};
 
 const stageClassName: Record<InstallProgressStage, string> = {
   queued: "border-border-default bg-muted text-muted-foreground",
@@ -23,15 +34,23 @@ interface InstallerProgressPanelProps {
 export function InstallerProgressPanel({
   steps,
 }: InstallerProgressPanelProps) {
+  const { t } = useTranslation();
+
   return (
     <Card className="border-border-default/80">
       <CardHeader>
-        <CardTitle className="text-base">Install Progress</CardTitle>
+        <CardTitle className="text-base">
+          {t("settings.installerProgressTitle", {
+            defaultValue: "Install Progress",
+          })}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {steps.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No install activity yet.
+            {t("settings.installerProgressEmpty", {
+              defaultValue: "No install activity yet.",
+            })}
           </p>
         ) : (
           <ScrollArea className="max-h-64 pr-4">
@@ -48,7 +67,9 @@ export function InstallerProgressPanel({
                     <Badge
                       className={cn("capitalize", stageClassName[step.stage])}
                     >
-                      {step.stage}
+                      {t(stageLabelKey[step.stage], {
+                        defaultValue: step.stage,
+                      })}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">{step.message}</p>

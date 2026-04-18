@@ -1,4 +1,5 @@
 import { Loader2, RefreshCw, Wrench } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 
@@ -21,6 +22,8 @@ export function InstallerActions({
   onToggleManual,
   showManualCommands,
 }: InstallerActionsProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-wrap gap-3">
       <Button
@@ -33,7 +36,7 @@ export function InstallerActions({
         ) : (
           <RefreshCw className="h-4 w-4" />
         )}
-        Refresh
+        {loading ? t("common.refreshing") : t("common.refresh")}
       </Button>
       <Button onClick={() => void onInstall()} disabled={!canInstall || installing}>
         {installing ? (
@@ -41,10 +44,18 @@ export function InstallerActions({
         ) : (
           <Wrench className="h-4 w-4" />
         )}
-        Install Missing
+        {t("settings.installerCenterInstallMissing", {
+          defaultValue: "Install Missing",
+        })}
       </Button>
       <Button variant="secondary" onClick={onToggleManual}>
-        {showManualCommands ? "Hide Manual Commands" : "Manual Commands"}
+        {showManualCommands
+          ? t("settings.installerCenterHideManualCommands", {
+              defaultValue: "Hide Manual Commands",
+            })
+          : t("settings.installerCenterShowManualCommands", {
+              defaultValue: "Manual Commands",
+            })}
       </Button>
     </div>
   );

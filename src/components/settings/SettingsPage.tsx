@@ -462,7 +462,7 @@ export function SettingsPage({
                 ) : null}
               </TabsContent>
 
-              <TabsContent value="about" className="mt-0">
+              <TabsContent value="about" className="mt-0 pb-4">
                 <AboutSection isPortable={isPortable} />
               </TabsContent>
 

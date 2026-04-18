@@ -603,6 +603,41 @@
     "installerCenter": "環境チェックとインストール",
     "installerCenterHint": "ローカル依存関係を検出し、対応する CLI ツールをまとめてインストールします。",
     "openInstallerCenter": "環境チェックとインストール",
+    "installerCenterTitle": "環境チェックとインストール",
+    "installerCenterDescription": "CLI 依存関係を検出し、不足しているツールをインストールして、手動セットアップ用コマンドを確認します。",
+    "installerCenterSummaryTitle": "環境サマリー",
+    "installerCenterLoading": "インストール環境を確認中...",
+    "installerCenterReadyCount": "{{readyCount}}/{{totalCount}} 件の依存関係が準備完了",
+    "installerCenterCoreDependencies": "コア依存関係",
+    "installerCenterToolDependencies": "CLI ツール",
+    "installerCenterManualCommands": "手動コマンド",
+    "installerCenterInstallMissing": "不足項目をインストール",
+    "installerCenterShowManualCommands": "手動コマンド",
+    "installerCenterHideManualCommands": "手動コマンドを隠す",
+    "installerCenterCloseAriaLabel": "環境チェックとインストールを閉じる",
+    "installerDependencyKind": {
+      "core": "コア",
+      "tool": "ツール"
+    },
+    "installerDependencyState": {
+      "installed": "インストール済み",
+      "missing": "不足",
+      "outdated": "古い",
+      "broken": "異常",
+      "manual": "手動対応"
+    },
+    "installerVersionUnavailable": "バージョン不明",
+    "installerProgressTitle": "インストール進捗",
+    "installerProgressEmpty": "まだインストール履歴はありません。",
+    "installerProgressStage": {
+      "queued": "待機中",
+      "downloading": "ダウンロード中",
+      "installing": "インストール中",
+      "verifying": "検証中",
+      "completed": "完了",
+      "failed": "失敗",
+      "manual": "手動対応"
+    },
     "localEnvCheck": "ローカル環境チェック",
     "envBadge": {
       "wsl": "WSL",

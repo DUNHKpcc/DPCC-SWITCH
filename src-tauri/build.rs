@@ -1,5 +1,32 @@
+use std::fs;
+use std::path::Path;
+
+fn watch_dir(path: &Path) {
+    if !path.exists() {
+        return;
+    }
+
+    println!("cargo:rerun-if-changed={}", path.display());
+
+    if !path.is_dir() {
+        return;
+    }
+
+    let entries = match fs::read_dir(path) {
+        Ok(entries) => entries,
+        Err(_) => return,
+    };
+
+    for entry in entries.flatten() {
+        watch_dir(&entry.path());
+    }
+}
+
 fn main() {
     tauri_build::build();
+
+    watch_dir(Path::new("icons"));
+    println!("cargo:rerun-if-changed=tauri.conf.json");
 
     // Windows: Embed Common Controls v6 manifest for test binaries
     //

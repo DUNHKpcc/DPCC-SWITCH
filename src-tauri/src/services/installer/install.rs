@@ -64,6 +64,7 @@ pub fn build_install_plan(
             InstallerDependencyName::Node | InstallerDependencyName::Npm => {
                 needs_node = true;
             }
+            InstallerDependencyName::Pnpm => targets.push(InstallerDependencyName::Pnpm),
             InstallerDependencyName::Git => targets.push(InstallerDependencyName::Git),
             InstallerDependencyName::Claude => targets.push(InstallerDependencyName::Claude),
             InstallerDependencyName::Codex => targets.push(InstallerDependencyName::Codex),
@@ -78,6 +79,7 @@ pub fn build_install_plan(
     }
 
     for candidate in [
+        InstallerDependencyName::Pnpm,
         InstallerDependencyName::Git,
         InstallerDependencyName::Claude,
         InstallerDependencyName::Codex,
@@ -110,6 +112,11 @@ pub fn get_manual_install_commands(platform: &str) -> Vec<ManualInstallCommandGr
             name: InstallerDependencyName::Node,
             title: "Node.js".to_string(),
             commands: vec![node_command.to_string()],
+        },
+        ManualInstallCommandGroup {
+            name: InstallerDependencyName::Pnpm,
+            title: "pnpm".to_string(),
+            commands: vec!["npm i -g pnpm@latest".to_string()],
         },
         ManualInstallCommandGroup {
             name: InstallerDependencyName::Git,
@@ -246,6 +253,11 @@ async fn install_dependency(
         InstallerDependencyName::Npm => {
             Ok("npm is satisfied by the Node.js installation.".to_string())
         }
+        InstallerDependencyName::Pnpm => {
+            run_install_command("npm", &["i", "-g", "pnpm@latest"])
+                .await
+                .map(|_| "Installed pnpm.".to_string())
+        }
     }
 }
 
@@ -370,6 +382,30 @@ mod tests {
     }
 
     #[test]
+    fn install_plan_puts_pnpm_after_node_when_both_are_missing() {
+        let plan = build_install_plan(&[
+            status(
+                InstallerDependencyName::Node,
+                InstallerDependencyKind::Core,
+                InstallerDependencyState::Missing,
+            ),
+            status(
+                InstallerDependencyName::Pnpm,
+                InstallerDependencyKind::Core,
+                InstallerDependencyState::Missing,
+            ),
+        ]);
+
+        assert_eq!(
+            plan,
+            vec![
+                InstallerDependencyName::Node,
+                InstallerDependencyName::Pnpm,
+            ]
+        );
+    }
+
+    #[test]
     fn linux_manual_commands_include_all_tools() {
         let commands = get_manual_install_commands("linux");
 
@@ -385,6 +421,9 @@ mod tests {
         assert!(commands
             .iter()
             .any(|item| item.name == InstallerDependencyName::Opencode));
+        assert!(commands
+            .iter()
+            .any(|item| item.name == InstallerDependencyName::Pnpm));
     }
 
     #[test]

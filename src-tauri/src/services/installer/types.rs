@@ -12,6 +12,7 @@ pub enum InstallerDependencyKind {
 pub enum InstallerDependencyName {
     Node,
     Npm,
+    Pnpm,
     Git,
     Claude,
     Codex,

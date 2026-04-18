@@ -128,6 +128,11 @@ let importExportMock = createImportExportMock();
 const useImportExportSpy = vi.fn();
 let lastUseImportExportOptions: Record<string, unknown> | undefined;
 
+useImportExportSpy.mockImplementation((options?: Record<string, unknown>) => {
+  lastUseImportExportOptions = options;
+  return importExportMock;
+});
+
 vi.mock("@/hooks/useSettings", () => ({
   useSettings: () => settingsMock,
 }));
@@ -176,10 +181,14 @@ vi.mock("@/components/ui/tabs", () => {
         </button>
       );
     },
-    TabsContent: ({ value, children }: any) => {
+    TabsContent: ({ value, children, className }: any) => {
       const ctx = useContext(TabsContext);
       if (ctx.value !== value) return null;
-      return <div data-testid={`tab-${value}`}>{children}</div>;
+      return (
+        <div data-testid={`tab-${value}`} className={className}>
+          {children}
+        </div>
+      );
     },
   };
 });
@@ -259,6 +268,12 @@ const renderSettingsPage = (
     </QueryClientProvider>,
   );
 };
+
+it("adds bottom padding to the about tab content", async () => {
+  renderSettingsPage({ defaultTab: "about" });
+
+  expect(screen.getByTestId("tab-about").className).toContain("pb-4");
+});
 
 describe("SettingsPage Component", () => {
   beforeEach(async () => {

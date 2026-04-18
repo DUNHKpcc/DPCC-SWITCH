@@ -3,6 +3,7 @@ export type InstallerDependencyKind = "core" | "tool";
 export type InstallerDependencyName =
   | "node"
   | "npm"
+  | "pnpm"
   | "git"
   | "claude"
   | "codex"

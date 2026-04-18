@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, ShieldCheck, TerminalSquare } from "lucide-react";
+import { Loader2, ShieldCheck, TerminalSquare, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { installerApi } from "@/lib/api/installer";
 import type {
@@ -97,7 +99,6 @@ export function InstallerCenterDialog({
   const groupedDependencies = useMemo(() => {
     const dependencies = environment?.dependencies ?? [];
     return {
-      core: dependencies.filter((dependency) => dependency.kind === "core"),
       tool: dependencies.filter((dependency) => dependency.kind === "tool"),
     };
   }, [environment]);
@@ -127,28 +128,62 @@ export function InstallerCenterDialog({
     }
   }
 
+  const platformLabel = (() => {
+    const platform = environment?.platform;
+    if (
+      platform &&
+      ["wsl", "windows", "macos", "linux"].includes(platform)
+    ) {
+      return t(`settings.envBadge.${platform}`);
+    }
+    return t("common.unknown");
+  })();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[88vh] overflow-hidden p-0">
-        <DialogHeader>
-          <DialogTitle>
-            {t("settings.installerCenter.title", {
-              defaultValue: "Environment Check & Install",
-            })}
-          </DialogTitle>
-          <DialogDescription>
-            {t("settings.installerCenter.description", {
-              defaultValue:
-                "Detect CLI dependencies, install missing tools, and review manual setup commands.",
-            })}
-          </DialogDescription>
+      <DialogContent
+        zIndex="nested"
+        className="w-[min(96vw,80rem)] max-w-[min(96vw,80rem)] max-h-[min(90vh,calc(100vh-1rem))] overflow-hidden p-0 sm:max-h-[88vh]"
+      >
+        <DialogHeader className="gap-3">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 space-y-1.5">
+              <DialogTitle>
+                {t("settings.installerCenterTitle", {
+                  defaultValue: "Environment Check & Install",
+                })}
+              </DialogTitle>
+              <DialogDescription>
+                {t("settings.installerCenterDescription", {
+                  defaultValue:
+                    "Detect CLI dependencies, install missing tools, and review manual setup commands.",
+                })}
+              </DialogDescription>
+            </div>
+            <DialogClose asChild>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-9 w-9 shrink-0 rounded-lg"
+                aria-label={t("settings.installerCenterCloseAriaLabel", {
+                  defaultValue: "Close installer center",
+                })}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogClose>
+          </div>
         </DialogHeader>
 
-        <div className="grid gap-6 overflow-y-auto p-6">
+        <div
+          data-testid="installer-center-scroll"
+          className="flex-1 min-h-0 grid gap-6 overflow-y-auto px-6 pt-6 pb-10"
+        >
           <Card className="border-border-default/80">
             <CardHeader>
               <CardTitle className="text-base">
-                {t("settings.installerCenter.summaryTitle", {
+                {t("settings.installerCenterSummaryTitle", {
                   defaultValue: "Environment Summary",
                 })}
               </CardTitle>
@@ -163,13 +198,20 @@ export function InstallerCenterDialog({
                   )}
                   <span>
                     {environment
-                      ? `${environment.readyCount}/${environment.totalCount} dependencies ready`
-                      : "Loading installer environment..."}
+                      ? t("settings.installerCenterReadyCount", {
+                          defaultValue:
+                            "{{readyCount}}/{{totalCount}} dependencies ready",
+                          readyCount: environment.readyCount,
+                          totalCount: environment.totalCount,
+                        })
+                      : t("settings.installerCenterLoading", {
+                          defaultValue: "Loading installer environment...",
+                        })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <TerminalSquare className="h-4 w-4" />
-                  <span>{environment?.platform ?? "unknown"}</span>
+                  <span>{platformLabel}</span>
                 </div>
               </div>
               <InstallerActions
@@ -184,49 +226,29 @@ export function InstallerCenterDialog({
             </CardContent>
           </Card>
 
-          <div className="grid gap-4 xl:grid-cols-2">
-            <section className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                  {t("settings.installerCenter.coreDependencies", {
-                    defaultValue: "Core Dependencies",
-                  })}
-                </h3>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                {groupedDependencies.core.map((dependency) => (
-                  <InstallerDependencyCard
-                    key={dependency.name}
-                    dependency={dependency}
-                  />
-                ))}
-              </div>
-            </section>
-
-            <section className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                  {t("settings.installerCenter.toolDependencies", {
-                    defaultValue: "CLI Tools",
-                  })}
-                </h3>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                {groupedDependencies.tool.map((dependency) => (
-                  <InstallerDependencyCard
-                    key={dependency.name}
-                    dependency={dependency}
-                  />
-                ))}
-              </div>
-            </section>
-          </div>
+          <section className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                {t("settings.installerCenterToolDependencies", {
+                  defaultValue: "CLI Tools",
+                })}
+              </h3>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {groupedDependencies.tool.map((dependency) => (
+                <InstallerDependencyCard
+                  key={dependency.name}
+                  dependency={dependency}
+                />
+              ))}
+            </div>
+          </section>
 
           {showManualCommands ? (
             <Card className="border-border-default/80">
               <CardHeader>
                 <CardTitle className="text-base">
-                  {t("settings.installerCenter.manualCommands", {
+                  {t("settings.installerCenterManualCommands", {
                     defaultValue: "Manual Commands",
                   })}
                 </CardTitle>

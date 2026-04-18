@@ -603,6 +603,41 @@
     "installerCenter": "Environment Check & Install",
     "installerCenterHint": "Detect local dependencies and install supported CLI tools from one place.",
     "openInstallerCenter": "Environment Check & Install",
+    "installerCenterTitle": "Environment Check & Install",
+    "installerCenterDescription": "Detect CLI dependencies, install missing tools, and review manual setup commands.",
+    "installerCenterSummaryTitle": "Environment Summary",
+    "installerCenterLoading": "Loading installer environment...",
+    "installerCenterReadyCount": "{{readyCount}}/{{totalCount}} dependencies ready",
+    "installerCenterCoreDependencies": "Core Dependencies",
+    "installerCenterToolDependencies": "CLI Tools",
+    "installerCenterManualCommands": "Manual Commands",
+    "installerCenterInstallMissing": "Install Missing",
+    "installerCenterShowManualCommands": "Manual Commands",
+    "installerCenterHideManualCommands": "Hide Manual Commands",
+    "installerCenterCloseAriaLabel": "Close installer center",
+    "installerDependencyKind": {
+      "core": "Core",
+      "tool": "Tool"
+    },
+    "installerDependencyState": {
+      "installed": "Installed",
+      "missing": "Missing",
+      "outdated": "Outdated",
+      "broken": "Broken",
+      "manual": "Manual"
+    },
+    "installerVersionUnavailable": "Version unavailable",
+    "installerProgressTitle": "Install Progress",
+    "installerProgressEmpty": "No install activity yet.",
+    "installerProgressStage": {
+      "queued": "Queued",
+      "downloading": "Downloading",
+      "installing": "Installing",
+      "verifying": "Verifying",
+      "completed": "Completed",
+      "failed": "Failed",
+      "manual": "Manual"
+    },
     "localEnvCheck": "Local environment check",
     "envBadge": {
       "wsl": "WSL",

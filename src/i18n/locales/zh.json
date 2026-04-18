@@ -603,6 +603,41 @@
     "installerCenter": "环境检测与安装",
     "installerCenterHint": "集中检测本机依赖，并安装受支持的 CLI 工具。",
     "openInstallerCenter": "环境检测与安装",
+    "installerCenterTitle": "环境检测与安装",
+    "installerCenterDescription": "检测 CLI 依赖、安装缺失工具，并查看手动安装命令。",
+    "installerCenterSummaryTitle": "环境摘要",
+    "installerCenterLoading": "正在检测安装环境...",
+    "installerCenterReadyCount": "{{readyCount}}/{{totalCount}} 项依赖已就绪",
+    "installerCenterCoreDependencies": "核心依赖",
+    "installerCenterToolDependencies": "CLI 工具",
+    "installerCenterManualCommands": "手动命令",
+    "installerCenterInstallMissing": "安装缺失项",
+    "installerCenterShowManualCommands": "手动命令",
+    "installerCenterHideManualCommands": "隐藏手动命令",
+    "installerCenterCloseAriaLabel": "关闭环境检测与安装",
+    "installerDependencyKind": {
+      "core": "核心",
+      "tool": "工具"
+    },
+    "installerDependencyState": {
+      "installed": "已安装",
+      "missing": "缺失",
+      "outdated": "过旧",
+      "broken": "异常",
+      "manual": "手动处理"
+    },
+    "installerVersionUnavailable": "版本未知",
+    "installerProgressTitle": "安装进度",
+    "installerProgressEmpty": "暂无安装活动。",
+    "installerProgressStage": {
+      "queued": "排队中",
+      "downloading": "下载中",
+      "installing": "安装中",
+      "verifying": "校验中",
+      "completed": "已完成",
+      "failed": "失败",
+      "manual": "需手动处理"
+    },
     "localEnvCheck": "本地环境检查",
     "envBadge": {
       "wsl": "WSL",
