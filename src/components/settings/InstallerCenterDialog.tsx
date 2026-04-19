@@ -109,7 +109,7 @@ export function InstallerCenterDialog({
     }
 
     return environment.dependencies.some((dependency) =>
-      ["missing", "outdated"].includes(dependency.state),
+      dependency.state === "missing" && dependency.autoInstallSupported,
     );
   }, [environment]);
 

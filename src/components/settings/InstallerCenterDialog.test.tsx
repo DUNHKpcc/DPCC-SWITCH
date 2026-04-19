@@ -143,6 +143,90 @@ test("renders installer center chrome in chinese", async () => {
   expect(screen.getByText("安装进度")).toBeInTheDocument();
 });
 
+test("does not enable batch install for outdated-only dependencies", async () => {
+  const { installerApi } = await import("@/lib/api/installer");
+
+  vi.mocked(installerApi.detectEnvironment).mockResolvedValueOnce({
+    platform: "linux",
+    autoInstallSupported: true,
+    dependencies: [
+      {
+        name: "codex",
+        kind: "tool",
+        state: "outdated",
+        version: "0.40.0",
+        path: "/usr/local/bin/codex",
+        message: "codex is outdated.",
+        autoInstallSupported: true,
+      },
+    ],
+    lastCheckedAt: "2026-04-16T00:00:00Z",
+    readyCount: 0,
+    totalCount: 1,
+  });
+
+  render(<InstallerCenterDialog open onOpenChange={() => {}} />);
+
+  expect(
+    await screen.findByRole("button", { name: "安装缺失项" }),
+  ).toBeDisabled();
+});
+
+test("shows node progress text without changing the existing installer chrome", async () => {
+  const user = userEvent.setup();
+  const { installerApi } = await import("@/lib/api/installer");
+
+  vi.mocked(installerApi.detectEnvironment).mockResolvedValueOnce({
+    platform: "macos",
+    autoInstallSupported: true,
+    dependencies: [
+      {
+        name: "codex",
+        kind: "tool",
+        state: "missing",
+        version: null,
+        path: null,
+        message: "codex was not found on PATH.",
+        autoInstallSupported: true,
+      },
+    ],
+    lastCheckedAt: "2026-04-19T00:00:00Z",
+    readyCount: 0,
+    totalCount: 1,
+  });
+  vi.mocked(installerApi.installMissing).mockResolvedValueOnce({
+    steps: [
+      {
+        name: "node",
+        stage: "installing",
+        message: "Installing Homebrew from domestic mirror...",
+      },
+      {
+        name: "node",
+        stage: "verifying",
+        message: "Verifying node and npm on PATH...",
+      },
+    ],
+    completedDependencies: [],
+    failedDependencies: [],
+    manualDependencies: [],
+    statusMessage: "done",
+  });
+
+  render(<InstallerCenterDialog open onOpenChange={() => {}} />);
+
+  await user.click(await screen.findByRole("button", { name: "安装缺失项" }));
+
+  expect(await screen.findByText("环境检测与安装")).toBeInTheDocument();
+  expect(screen.getByText("安装进度")).toBeInTheDocument();
+  expect(
+    screen.getByText("Installing Homebrew from domestic mirror..."),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText("Verifying node and npm on PATH..."),
+  ).toBeInTheDocument();
+});
+
 test("does not render core dependency cards in installer center", async () => {
   render(<InstallerCenterDialog open onOpenChange={() => {}} />);
 

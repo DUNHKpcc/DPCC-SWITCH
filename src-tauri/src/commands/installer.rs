@@ -26,7 +26,10 @@ pub async fn install_selected_dependencies(
 #[tauri::command]
 pub async fn get_manual_install_commands(
 ) -> Result<Vec<crate::services::installer::install::ManualInstallCommandGroup>, String> {
-    Ok(crate::services::installer::install::get_manual_install_commands(
-        std::env::consts::OS,
-    ))
+    let environment = detect_installer_environment().await?;
+    Ok(
+        crate::services::installer::install::get_manual_install_commands_for_environment(
+            &environment,
+        ),
+    )
 }

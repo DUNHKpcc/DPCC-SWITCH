@@ -2,9 +2,16 @@ use serde::{Deserialize, Serialize};
 use std::process::Command;
 use tauri::{AppHandle, Emitter};
 
+use super::node_runtime::{
+    detect_node_install_capability, evaluate_node_runtime_verification, install_node_runtime,
+    prepend_node_verification_paths_to_process_path,
+};
 use super::types::{
     InstallerDependencyName, InstallerDependencyState, InstallerDependencyStatus,
+    InstallerEnvironment,
 };
+#[cfg(test)]
+use super::types::InstallerDependencyKind;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -47,16 +54,12 @@ pub struct InstallerRunResult {
 pub fn build_install_plan(
     dependencies: &[InstallerDependencyStatus],
 ) -> Vec<InstallerDependencyName> {
+    let npm_backed_tools_can_be_planned = node_runtime_ready_for_npm_backed_tools(dependencies);
     let mut needs_node = false;
     let mut targets = Vec::new();
 
     for dependency in dependencies {
-        let pending = matches!(
-            dependency.state,
-            InstallerDependencyState::Missing | InstallerDependencyState::Outdated
-        );
-
-        if !pending {
+        if !is_installable_dependency(dependency) {
             continue;
         }
 
@@ -64,12 +67,25 @@ pub fn build_install_plan(
             InstallerDependencyName::Node | InstallerDependencyName::Npm => {
                 needs_node = true;
             }
-            InstallerDependencyName::Pnpm => targets.push(InstallerDependencyName::Pnpm),
+            InstallerDependencyName::Pnpm
+                if npm_backed_tools_can_be_planned =>
+            {
+                targets.push(InstallerDependencyName::Pnpm)
+            }
             InstallerDependencyName::Git => targets.push(InstallerDependencyName::Git),
             InstallerDependencyName::Claude => targets.push(InstallerDependencyName::Claude),
-            InstallerDependencyName::Codex => targets.push(InstallerDependencyName::Codex),
-            InstallerDependencyName::Gemini => targets.push(InstallerDependencyName::Gemini),
+            InstallerDependencyName::Codex
+                if npm_backed_tools_can_be_planned =>
+            {
+                targets.push(InstallerDependencyName::Codex)
+            }
+            InstallerDependencyName::Gemini
+                if npm_backed_tools_can_be_planned =>
+            {
+                targets.push(InstallerDependencyName::Gemini)
+            }
             InstallerDependencyName::Opencode => targets.push(InstallerDependencyName::Opencode),
+            _ => {}
         }
     }
 
@@ -94,11 +110,28 @@ pub fn build_install_plan(
     ordered
 }
 
-fn is_pending_dependency(dependency: &InstallerDependencyStatus) -> bool {
-    matches!(
-        dependency.state,
-        InstallerDependencyState::Missing | InstallerDependencyState::Outdated
-    )
+fn is_installable_dependency(dependency: &InstallerDependencyStatus) -> bool {
+    dependency.state == InstallerDependencyState::Missing
+        && dependency.auto_install_supported
+}
+
+fn node_runtime_ready_for_npm_backed_tools(dependencies: &[InstallerDependencyStatus]) -> bool {
+    let node_installed = dependencies.iter().any(|dependency| {
+        dependency.name == InstallerDependencyName::Node
+            && dependency.state == InstallerDependencyState::Installed
+    });
+    let npm_installed = dependencies.iter().any(|dependency| {
+        dependency.name == InstallerDependencyName::Npm
+            && dependency.state == InstallerDependencyState::Installed
+    });
+    let node_runtime_can_be_planned = dependencies.iter().any(|dependency| {
+        matches!(
+            dependency.name,
+            InstallerDependencyName::Node | InstallerDependencyName::Npm
+        ) && is_installable_dependency(dependency)
+    });
+
+    (node_installed && npm_installed) || node_runtime_can_be_planned
 }
 
 pub fn build_selected_install_plan(
@@ -107,66 +140,133 @@ pub fn build_selected_install_plan(
 ) -> Vec<InstallerDependencyName> {
     let mut filtered: Vec<InstallerDependencyStatus> = dependencies
         .iter()
-        .filter(|dependency| requested.contains(&dependency.name))
+        .filter(|dependency| {
+            requested.contains(&dependency.name) && is_installable_dependency(dependency)
+        })
         .cloned()
         .collect();
 
-    let requested_dependency_needs_node = dependencies.iter().any(|dependency| {
-        requested.contains(&dependency.name)
-            && is_pending_dependency(dependency)
-            && matches!(
-                dependency.name,
-                InstallerDependencyName::Pnpm
-                    | InstallerDependencyName::Codex
-                    | InstallerDependencyName::Gemini
-            )
-    });
-
-    let node_or_npm_pending = dependencies.iter().any(|dependency| {
+    let requested_dependency_needs_node = requested.iter().any(|dependency| {
         matches!(
-            dependency.name,
-            InstallerDependencyName::Node | InstallerDependencyName::Npm
-        ) && is_pending_dependency(dependency)
+            dependency,
+            InstallerDependencyName::Pnpm
+                | InstallerDependencyName::Codex
+                | InstallerDependencyName::Gemini
+        )
     });
 
-    if requested_dependency_needs_node && node_or_npm_pending {
-        filtered.push(InstallerDependencyStatus {
-            name: InstallerDependencyName::Node,
-            kind: super::types::InstallerDependencyKind::Core,
-            state: InstallerDependencyState::Missing,
-            version: None,
-            path: None,
-            message: None,
-            auto_install_supported: true,
-        });
+    if requested_dependency_needs_node {
+        for runtime_dependency in dependencies.iter().filter(|dependency| {
+            matches!(
+                dependency.name,
+                InstallerDependencyName::Node | InstallerDependencyName::Npm
+            )
+        }) {
+            if !filtered
+                .iter()
+                .any(|dependency| dependency.name == runtime_dependency.name)
+            {
+                filtered.push(runtime_dependency.clone());
+            }
+        }
     }
 
     build_install_plan(&filtered)
 }
 
-pub fn get_manual_install_commands(platform: &str) -> Vec<ManualInstallCommandGroup> {
-    let node_command = match platform {
-        "linux" => "Install Node.js with your package manager or nvm.",
-        "windows" => "Download Node.js LTS from https://nodejs.org/en/download",
-        _ => "Download Node.js LTS from https://nodejs.org/en/download",
-    };
+fn node_manual_commands_for_environment(environment: &InstallerEnvironment) -> Vec<String> {
+    let node_status = environment
+        .dependencies
+        .iter()
+        .find(|dependency| dependency.name == InstallerDependencyName::Node);
+    let node_message = node_status.and_then(|dependency| dependency.message.as_deref());
 
-    let git_command = match platform {
+    match environment.platform.as_str() {
+        "windows" => {
+            let mut commands = Vec::new();
+
+            if node_message
+                .is_some_and(|message| message.contains("administrator"))
+                || node_status.is_some_and(|dependency| {
+                    dependency.state == InstallerDependencyState::Manual
+                        || !dependency.auto_install_supported
+                })
+            {
+                commands.push(
+                    "Close DPCC-SWITCH, reopen it with Run as administrator, and retry Node.js auto-install."
+                        .to_string(),
+                );
+            }
+
+            if node_message
+                .is_some_and(|message| message.contains("winget"))
+                || node_status.is_some_and(|dependency| !dependency.auto_install_supported)
+            {
+                commands.push(
+                    "If winget is missing, install App Installer from https://aka.ms/getwinget, then retry."
+                        .to_string(),
+                );
+            }
+
+            commands.push(
+                "winget install --id OpenJS.NodeJS.LTS -e --source winget --accept-package-agreements --accept-source-agreements"
+                    .to_string(),
+            );
+            commands.push("Download Node.js LTS from https://nodejs.org/en/download".to_string());
+            commands
+        }
+        "macos" | "darwin" => {
+            if node_message
+                .is_some_and(|message| message.contains("Homebrew is missing"))
+            {
+                vec![
+                    "export HOMEBREW_BREW_GIT_REMOTE=https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+                        .to_string(),
+                    "export HOMEBREW_CORE_GIT_REMOTE=https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+                        .to_string(),
+                    "export HOMEBREW_API_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
+                        .to_string(),
+                    "tmpdir=\"$(mktemp -d)\"".to_string(),
+                    "trap 'rm -rf \"$tmpdir\"' EXIT".to_string(),
+                    "git clone --depth=1 https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/install.git \"$tmpdir/install\""
+                        .to_string(),
+                    "/bin/bash \"$tmpdir/install/install.sh\"".to_string(),
+                    "brew install node".to_string(),
+                ]
+            } else {
+                vec!["brew install node".to_string()]
+            }
+        }
+        _ => vec!["Install Node.js with your package manager or nvm.".to_string()],
+    }
+}
+
+fn manual_command_groups_from_environment(
+    environment: &InstallerEnvironment,
+    node_commands: Vec<String>,
+) -> Vec<ManualInstallCommandGroup> {
+    let git_command = match environment.platform.as_str() {
         "linux" => "Install Git with your distro package manager.",
         "macos" | "darwin" => "Install Xcode Command Line Tools or Homebrew Git.",
         _ => "Install Git from https://git-scm.com/downloads",
+    };
+
+    let npm_backed_commands = |install_command: &str| {
+        let mut commands = node_commands.clone();
+        commands.push(install_command.to_string());
+        commands
     };
 
     vec![
         ManualInstallCommandGroup {
             name: InstallerDependencyName::Node,
             title: "Node.js".to_string(),
-            commands: vec![node_command.to_string()],
+            commands: node_commands.clone(),
         },
         ManualInstallCommandGroup {
             name: InstallerDependencyName::Pnpm,
             title: "pnpm".to_string(),
-            commands: vec!["npm i -g pnpm@latest".to_string()],
+            commands: npm_backed_commands("npm i -g pnpm@latest"),
         },
         ManualInstallCommandGroup {
             name: InstallerDependencyName::Git,
@@ -181,12 +281,12 @@ pub fn get_manual_install_commands(platform: &str) -> Vec<ManualInstallCommandGr
         ManualInstallCommandGroup {
             name: InstallerDependencyName::Codex,
             title: "Codex".to_string(),
-            commands: vec!["npm i -g @openai/codex@latest".to_string()],
+            commands: npm_backed_commands("npm i -g @openai/codex@latest"),
         },
         ManualInstallCommandGroup {
             name: InstallerDependencyName::Gemini,
             title: "Gemini CLI".to_string(),
-            commands: vec!["npm i -g @google/gemini-cli@latest".to_string()],
+            commands: npm_backed_commands("npm i -g @google/gemini-cli@latest"),
         },
         ManualInstallCommandGroup {
             name: InstallerDependencyName::Opencode,
@@ -194,6 +294,35 @@ pub fn get_manual_install_commands(platform: &str) -> Vec<ManualInstallCommandGr
             commands: vec!["curl -fsSL https://opencode.ai/install | bash".to_string()],
         },
     ]
+}
+
+pub fn get_manual_install_commands_for_environment(
+    environment: &InstallerEnvironment,
+) -> Vec<ManualInstallCommandGroup> {
+    let node_commands = node_manual_commands_for_environment(environment);
+    manual_command_groups_from_environment(environment, node_commands)
+}
+
+#[cfg(test)]
+pub fn get_manual_install_commands(platform: &str) -> Vec<ManualInstallCommandGroup> {
+    let environment = InstallerEnvironment {
+        platform: platform.to_string(),
+        auto_install_supported: false,
+        dependencies: vec![InstallerDependencyStatus {
+            name: InstallerDependencyName::Node,
+            kind: InstallerDependencyKind::Core,
+            state: InstallerDependencyState::Missing,
+            version: None,
+            path: None,
+            message: None,
+            auto_install_supported: false,
+        }],
+        last_checked_at: String::new(),
+        ready_count: 0,
+        total_count: 1,
+    };
+
+    get_manual_install_commands_for_environment(&environment)
 }
 
 pub fn normalize_install_result(steps: Vec<InstallExecutionStep>) -> InstallerRunResult {
@@ -240,17 +369,9 @@ async fn install_dependency(
     platform: &str,
 ) -> Result<String, String> {
     match dependency {
-        InstallerDependencyName::Node => match platform {
-            "windows" => Err(
-                "Node MSI flow must be implemented with a downloaded installer package."
-                    .to_string(),
-            ),
-            "macos" | "darwin" => Err(
-                "Node PKG flow must be implemented with a downloaded installer package."
-                    .to_string(),
-            ),
-            _ => Err("Node auto-install is not supported on this platform.".to_string()),
-        },
+        InstallerDependencyName::Node => Err(format!(
+            "Node runtime installation must be routed through the dedicated helper on {platform}."
+        )),
         InstallerDependencyName::Git => match platform {
             "windows" => run_install_command(
                 "winget",
@@ -324,6 +445,68 @@ fn progress_message(name: InstallerDependencyName) -> String {
     format!("Preparing {name:?} installation...")
 }
 
+fn installing_message(name: InstallerDependencyName) -> String {
+    format!("Installing {name:?}...")
+}
+
+fn verifying_message(name: InstallerDependencyName) -> String {
+    format!("Verifying {name:?} on PATH...")
+}
+
+fn record_installing_substep(
+    steps: &mut Vec<InstallExecutionStep>,
+    name: InstallerDependencyName,
+    message: String,
+) -> InstallExecutionStep {
+    let step = InstallExecutionStep {
+        name,
+        stage: InstallProgressStage::Installing,
+        message,
+    };
+    steps.push(step.clone());
+    step
+}
+
+fn verification_result_step(
+    name: InstallerDependencyName,
+    install_message: String,
+    status: InstallerDependencyStatus,
+) -> InstallExecutionStep {
+    match status.state {
+        InstallerDependencyState::Installed => {
+            let verification_detail = status
+                .path
+                .as_deref()
+                .map(|path| format!(" Verified on PATH at {path}."))
+                .unwrap_or_else(|| " Verified on PATH.".to_string());
+
+            InstallExecutionStep {
+                name,
+                stage: InstallProgressStage::Completed,
+                message: format!("{install_message}{verification_detail}"),
+            }
+        }
+        InstallerDependencyState::Manual => InstallExecutionStep {
+            name,
+            stage: InstallProgressStage::Manual,
+            message: status.message.unwrap_or_else(|| {
+                format!(
+                    "{name:?} install command finished, but manual setup is still required."
+                )
+            }),
+        },
+        _ => InstallExecutionStep {
+            name,
+            stage: InstallProgressStage::Failed,
+            message: status.message.unwrap_or_else(|| {
+                format!(
+                    "{name:?} install command exited successfully, but the dependency is still unavailable on PATH."
+                )
+            }),
+        },
+    }
+}
+
 async fn execute_install_plan(
     app: &AppHandle,
     plan: Vec<InstallerDependencyName>,
@@ -340,13 +523,56 @@ async fn execute_install_plan(
         let _ = app.emit("installer-progress", &queued);
         steps.push(queued);
 
-        let outcome = install_dependency(dependency, platform).await;
+        let installing = InstallExecutionStep {
+            name: dependency,
+            stage: InstallProgressStage::Installing,
+            message: installing_message(dependency),
+        };
+        let _ = app.emit("installer-progress", &installing);
+        steps.push(installing);
+
+        let outcome = if dependency == InstallerDependencyName::Node {
+            let capability = detect_node_install_capability();
+            let result = install_node_runtime(&capability, |message| {
+                let substep = record_installing_substep(&mut steps, dependency, message);
+                let _ = app.emit("installer-progress", &substep);
+            })
+            .await;
+
+            result
+        } else {
+            install_dependency(dependency, platform).await
+        };
         let finished = match outcome {
-            Ok(message) => InstallExecutionStep {
-                name: dependency,
-                stage: InstallProgressStage::Completed,
-                message,
-            },
+            Ok(message) => {
+                let verifying = InstallExecutionStep {
+                    name: dependency,
+                    stage: InstallProgressStage::Verifying,
+                    message: verifying_message(dependency),
+                };
+                let _ = app.emit("installer-progress", &verifying);
+                steps.push(verifying);
+
+                let status = if dependency == InstallerDependencyName::Node {
+                    let capability = detect_node_install_capability();
+                    prepend_node_verification_paths_to_process_path(&capability);
+                    let node_status =
+                        super::detect::detect_dependency_status(InstallerDependencyName::Node);
+                    let npm_status =
+                        super::detect::detect_dependency_status(InstallerDependencyName::Npm);
+                    evaluate_node_runtime_verification(
+                        node_status.version.clone(),
+                        npm_status.version.clone(),
+                    )
+                } else {
+                    super::detect::detect_installer_environment()
+                        .dependencies
+                        .into_iter()
+                        .find(|status| status.name == dependency)
+                        .unwrap_or_else(|| super::detect::detect_dependency_status(dependency))
+                };
+                verification_result_step(dependency, message, status)
+            }
             Err(error) => InstallExecutionStep {
                 name: dependency,
                 stage: install_stage_from_error(&error),
@@ -390,6 +616,15 @@ mod tests {
         kind: InstallerDependencyKind,
         state: InstallerDependencyState,
     ) -> InstallerDependencyStatus {
+        status_with_support(name, kind, state, true)
+    }
+
+    fn status_with_support(
+        name: InstallerDependencyName,
+        kind: InstallerDependencyKind,
+        state: InstallerDependencyState,
+        auto_install_supported: bool,
+    ) -> InstallerDependencyStatus {
         InstallerDependencyStatus {
             name,
             kind,
@@ -397,7 +632,7 @@ mod tests {
             version: None,
             path: None,
             message: None,
-            auto_install_supported: true,
+            auto_install_supported,
         }
     }
 
@@ -528,6 +763,145 @@ mod tests {
     }
 
     #[test]
+    fn selected_install_plan_keeps_healthy_node_runtime_for_requested_codex() {
+        let plan = build_selected_install_plan(
+            &[InstallerDependencyName::Codex],
+            &[
+                status(
+                    InstallerDependencyName::Node,
+                    InstallerDependencyKind::Core,
+                    InstallerDependencyState::Installed,
+                ),
+                status(
+                    InstallerDependencyName::Npm,
+                    InstallerDependencyKind::Core,
+                    InstallerDependencyState::Installed,
+                ),
+                status(
+                    InstallerDependencyName::Codex,
+                    InstallerDependencyKind::Tool,
+                    InstallerDependencyState::Missing,
+                ),
+            ],
+        );
+
+        assert_eq!(plan, vec![InstallerDependencyName::Codex]);
+    }
+
+    #[test]
+    fn install_plan_skips_npm_backed_tools_when_node_runtime_is_broken() {
+        let plan = build_install_plan(&[
+            status_with_support(
+                InstallerDependencyName::Node,
+                InstallerDependencyKind::Core,
+                InstallerDependencyState::Broken,
+                false,
+            ),
+            status(
+                InstallerDependencyName::Npm,
+                InstallerDependencyKind::Core,
+                InstallerDependencyState::Installed,
+            ),
+            status(
+                InstallerDependencyName::Pnpm,
+                InstallerDependencyKind::Core,
+                InstallerDependencyState::Missing,
+            ),
+            status(
+                InstallerDependencyName::Codex,
+                InstallerDependencyKind::Tool,
+                InstallerDependencyState::Missing,
+            ),
+            status(
+                InstallerDependencyName::Gemini,
+                InstallerDependencyKind::Tool,
+                InstallerDependencyState::Missing,
+            ),
+        ]);
+
+        assert!(plan.is_empty());
+    }
+
+    #[test]
+    fn selected_install_plan_skips_npm_backed_tools_when_node_runtime_is_broken() {
+        let plan = build_selected_install_plan(
+            &[InstallerDependencyName::Codex],
+            &[
+                status_with_support(
+                    InstallerDependencyName::Node,
+                    InstallerDependencyKind::Core,
+                    InstallerDependencyState::Broken,
+                    false,
+                ),
+                status(
+                    InstallerDependencyName::Npm,
+                    InstallerDependencyKind::Core,
+                    InstallerDependencyState::Installed,
+                ),
+                status(
+                    InstallerDependencyName::Codex,
+                    InstallerDependencyKind::Tool,
+                    InstallerDependencyState::Missing,
+                ),
+            ],
+        );
+
+        assert!(plan.is_empty());
+    }
+
+    #[test]
+    fn selected_install_plan_skips_npm_backed_tools_when_node_runtime_is_manual_only() {
+        let plan = build_selected_install_plan(
+            &[InstallerDependencyName::Codex],
+            &[
+                status_with_support(
+                    InstallerDependencyName::Node,
+                    InstallerDependencyKind::Core,
+                    InstallerDependencyState::Manual,
+                    false,
+                ),
+                status_with_support(
+                    InstallerDependencyName::Npm,
+                    InstallerDependencyKind::Core,
+                    InstallerDependencyState::Manual,
+                    false,
+                ),
+                status(
+                    InstallerDependencyName::Codex,
+                    InstallerDependencyKind::Tool,
+                    InstallerDependencyState::Missing,
+                ),
+            ],
+        );
+
+        assert!(plan.is_empty());
+    }
+
+    #[test]
+    fn install_plan_skips_npm_backed_tools_when_npm_is_unavailable() {
+        let plan = build_install_plan(&[
+            status_with_support(
+                InstallerDependencyName::Npm,
+                InstallerDependencyKind::Core,
+                InstallerDependencyState::Manual,
+                false,
+            ),
+            status(
+                InstallerDependencyName::Pnpm,
+                InstallerDependencyKind::Core,
+                InstallerDependencyState::Missing,
+            ),
+            status(
+                InstallerDependencyName::Gemini,
+                InstallerDependencyKind::Tool,
+                InstallerDependencyState::Missing,
+            ),
+        ]);
+
+        assert!(plan.is_empty());
+    }
+
+    #[test]
     fn linux_manual_commands_include_all_tools() {
         let commands = get_manual_install_commands("linux");
 
@@ -546,6 +920,112 @@ mod tests {
         assert!(commands
             .iter()
             .any(|item| item.name == InstallerDependencyName::Pnpm));
+    }
+
+    #[test]
+    fn linux_manual_commands_include_node_first_for_npm_backed_tools() {
+        let commands = get_manual_install_commands("linux");
+        let codex = commands
+            .iter()
+            .find(|item| item.name == InstallerDependencyName::Codex)
+            .expect("codex manual command group");
+        let gemini = commands
+            .iter()
+            .find(|item| item.name == InstallerDependencyName::Gemini)
+            .expect("gemini manual command group");
+        let pnpm = commands
+            .iter()
+            .find(|item| item.name == InstallerDependencyName::Pnpm)
+            .expect("pnpm manual command group");
+
+        assert!(codex
+            .commands
+            .first()
+            .is_some_and(|command| command.contains("Node.js")));
+        assert!(gemini
+            .commands
+            .first()
+            .is_some_and(|command| command.contains("Node.js")));
+        assert!(pnpm
+            .commands
+            .first()
+            .is_some_and(|command| command.contains("Node.js")));
+    }
+
+    #[test]
+    fn windows_node_manual_commands_explain_admin_retry_when_not_elevated() {
+        let environment = super::super::types::InstallerEnvironment {
+            platform: "windows".to_string(),
+            auto_install_supported: false,
+            dependencies: vec![InstallerDependencyStatus {
+                name: InstallerDependencyName::Node,
+                kind: InstallerDependencyKind::Core,
+                state: InstallerDependencyState::Manual,
+                version: None,
+                path: None,
+                message: Some(
+                    "Node.js auto-install on Windows requires winget and DPCC-SWITCH to be reopened as administrator."
+                        .to_string(),
+                ),
+                auto_install_supported: false,
+            }],
+            last_checked_at: "2026-04-19T00:00:00Z".to_string(),
+            ready_count: 0,
+            total_count: 1,
+        };
+
+        let commands = super::get_manual_install_commands_for_environment(&environment);
+        let node = commands
+            .iter()
+            .find(|item| item.name == InstallerDependencyName::Node)
+            .expect("node manual command group");
+
+        assert!(node
+            .commands
+            .iter()
+            .any(|command| command.contains("Run as administrator")));
+        assert!(node
+            .commands
+            .iter()
+            .any(|command| command.contains("https://nodejs.org/en/download")));
+    }
+
+    #[test]
+    fn macos_node_manual_commands_include_tuna_bootstrap_when_brew_is_missing() {
+        let environment = super::super::types::InstallerEnvironment {
+            platform: "macos".to_string(),
+            auto_install_supported: true,
+            dependencies: vec![InstallerDependencyStatus {
+                name: InstallerDependencyName::Node,
+                kind: InstallerDependencyKind::Core,
+                state: InstallerDependencyState::Missing,
+                version: None,
+                path: None,
+                message: Some(
+                    "Homebrew is missing. DPCC-SWITCH will install Homebrew from the domestic mirror before installing Node.js."
+                        .to_string(),
+                ),
+                auto_install_supported: true,
+            }],
+            last_checked_at: "2026-04-19T00:00:00Z".to_string(),
+            ready_count: 0,
+            total_count: 1,
+        };
+
+        let commands = super::get_manual_install_commands_for_environment(&environment);
+        let node = commands
+            .iter()
+            .find(|item| item.name == InstallerDependencyName::Node)
+            .expect("node manual command group");
+
+        assert!(node
+            .commands
+            .iter()
+            .any(|command| command.contains("mirrors.tuna.tsinghua.edu.cn")));
+        assert!(node
+            .commands
+            .iter()
+            .any(|command| command.contains("brew install node")));
     }
 
     #[test]
@@ -578,5 +1058,86 @@ mod tests {
         );
         assert_eq!(result.manual_dependencies, vec![InstallerDependencyName::Git]);
         assert_eq!(result.steps.len(), 3);
+    }
+
+    #[test]
+    fn verification_result_step_marks_completed_only_after_re_detection() {
+        let step = super::verification_result_step(
+            InstallerDependencyName::Codex,
+            "Installed Codex.".to_string(),
+            InstallerDependencyStatus {
+                name: InstallerDependencyName::Codex,
+                kind: InstallerDependencyKind::Tool,
+                state: InstallerDependencyState::Installed,
+                version: Some("0.42.0".to_string()),
+                path: Some("/usr/local/bin/codex".to_string()),
+                message: None,
+                auto_install_supported: true,
+            },
+        );
+
+        assert_eq!(step.stage, super::InstallProgressStage::Completed);
+        assert!(step.message.contains("Verified on PATH"));
+    }
+
+    #[test]
+    fn record_installing_substep_appends_step_immediately() {
+        let mut steps = Vec::new();
+
+        let step = super::record_installing_substep(
+            &mut steps,
+            InstallerDependencyName::Node,
+            "Checking Homebrew availability...".to_string(),
+        );
+
+        assert_eq!(steps.len(), 1);
+        assert_eq!(steps[0], step);
+        assert_eq!(steps[0].stage, super::InstallProgressStage::Installing);
+    }
+
+    #[test]
+    fn verification_result_step_fails_when_binary_is_still_missing() {
+        let step = super::verification_result_step(
+            InstallerDependencyName::Claude,
+            "Installed Claude Code.".to_string(),
+            InstallerDependencyStatus {
+                name: InstallerDependencyName::Claude,
+                kind: InstallerDependencyKind::Tool,
+                state: InstallerDependencyState::Missing,
+                version: None,
+                path: None,
+                message: Some("claude was not found on PATH.".to_string()),
+                auto_install_supported: true,
+            },
+        );
+
+        assert_eq!(step.stage, super::InstallProgressStage::Failed);
+        assert_eq!(step.message, "claude was not found on PATH.");
+    }
+
+    #[test]
+    fn verification_result_step_surfaces_broken_runtime_message() {
+        let step = super::verification_result_step(
+            InstallerDependencyName::Node,
+            "Installed Node.js with Homebrew.".to_string(),
+            InstallerDependencyStatus {
+                name: InstallerDependencyName::Node,
+                kind: InstallerDependencyKind::Core,
+                state: InstallerDependencyState::Broken,
+                version: Some("v22.18.0".to_string()),
+                path: None,
+                message: Some(
+                    "Node.js is available on PATH, but npm is missing. Reinstall Node.js to repair npm."
+                        .to_string(),
+                ),
+                auto_install_supported: true,
+            },
+        );
+
+        assert_eq!(step.stage, super::InstallProgressStage::Failed);
+        assert_eq!(
+            step.message,
+            "Node.js is available on PATH, but npm is missing. Reinstall Node.js to repair npm."
+        );
     }
 }

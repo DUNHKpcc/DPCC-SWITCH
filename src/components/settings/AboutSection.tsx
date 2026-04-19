@@ -123,6 +123,8 @@ const DEPENDENCY_STATE_LABEL_KEY: Record<InstallerDependencyState, string> = {
 };
 
 const LOCAL_ENV_GRID_CLASS_NAME = "grid gap-3 px-2 sm:grid-cols-2 lg:grid-cols-4";
+const FEATURE_CARD_GRID_CLASS_NAME = "grid gap-3 px-3 lg:grid-cols-4";
+const FEATURE_CARD_SPAN_CLASS_NAME = "min-w-0 lg:col-span-2";
 const CORE_DEPENDENCY_ICON_SRC = {
   node: nodeIcon,
   npm: npmIcon,
@@ -131,9 +133,7 @@ const CORE_DEPENDENCY_ICON_SRC = {
 } as const;
 
 function isPendingDependency(dependency?: InstallerDependencyStatus) {
-  return (
-    dependency?.state === "missing" || dependency?.state === "outdated"
-  );
+  return dependency?.state === "missing";
 }
 
 function getToolDisplayName(toolName: ToolName) {
@@ -624,60 +624,63 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
         <p className="text-xs text-muted-foreground">{t("settings.aboutHint")}</p>
       </header>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-        className="rounded-xl border border-border bg-gradient-to-br from-card/80 to-card/40 p-6 space-y-5 shadow-sm"
-      >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <img src={appIcon} alt="DPCC-SWITCH" className="h-5 w-5" />
-              <h4 className="text-lg font-semibold text-foreground">DPCC-SWITCH</h4>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="gap-1.5 bg-background/80">
-                <span className="text-muted-foreground">{t("common.version")}</span>
-                {isLoadingVersion ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <span className="font-medium">{`v${displayVersion}`}</span>
-                )}
-              </Badge>
-              {isPortable && APP_UPDATES_ENABLED ? (
-                <Badge variant="secondary" className="gap-1.5">
-                  <Info className="h-3 w-3" />
-                  {t("settings.portableMode")}
+      <div className={FEATURE_CARD_GRID_CLASS_NAME}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className={`${FEATURE_CARD_SPAN_CLASS_NAME} rounded-xl border border-border bg-gradient-to-br from-card/80 to-card/40 p-6 space-y-5 shadow-sm`}
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <img src={appIcon} alt="DPCC-SWITCH" className="h-5 w-5" />
+                <h4 className="text-lg font-semibold text-foreground">DPCC-SWITCH</h4>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="gap-1.5 bg-background/80">
+                  <span className="text-muted-foreground">{t("common.version")}</span>
+                  {isLoadingVersion ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <span className="font-medium">{`v${displayVersion}`}</span>
+                  )}
                 </Badge>
-              ) : null}
+                {isPortable && APP_UPDATES_ENABLED ? (
+                  <Badge variant="secondary" className="gap-1.5">
+                    <Info className="h-3 w-3" />
+                    {t("settings.portableMode")}
+                  </Badge>
+                ) : null}
+              </div>
             </div>
-          </div>
 
-          <div className="text-xs text-muted-foreground sm:text-right">
-            © SunJiaHao
+          <div className="space-y-1 text-xs text-muted-foreground sm:text-right">
+            <div>© SunJiaHao</div>
+            <div>如有问题发送至sjh2329952249@163.com</div>
           </div>
         </div>
 
-        {APP_UPDATES_ENABLED && hasUpdate && updateInfo ? (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm"
-          >
-            <p className="mb-1 font-medium text-primary">
-              {t("settings.updateAvailable", {
-                version: updateInfo.availableVersion,
-              })}
-            </p>
-            {updateInfo.notes ? (
-              <p className="line-clamp-3 leading-relaxed text-muted-foreground">
-                {updateInfo.notes}
+          {APP_UPDATES_ENABLED && hasUpdate && updateInfo ? (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm"
+            >
+              <p className="mb-1 font-medium text-primary">
+                {t("settings.updateAvailable", {
+                  version: updateInfo.availableVersion,
+                })}
               </p>
-            ) : null}
-          </motion.div>
-        ) : null}
-      </motion.div>
+              {updateInfo.notes ? (
+                <p className="line-clamp-3 leading-relaxed text-muted-foreground">
+                  {updateInfo.notes}
+                </p>
+              ) : null}
+            </motion.div>
+          ) : null}
+        </motion.div>
+      </div>
 
       {!isWindows() ? (
         <div className="space-y-4">
@@ -802,8 +805,10 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
             </div>
           ) : null}
 
-          <div className="px-1">
-            <InstallerProgressPanel steps={progress} />
+          <div className={FEATURE_CARD_GRID_CLASS_NAME}>
+            <div className={FEATURE_CARD_SPAN_CLASS_NAME}>
+              <InstallerProgressPanel steps={progress} />
+            </div>
           </div>
         </div>
       ) : null}

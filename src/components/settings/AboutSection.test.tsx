@@ -394,6 +394,58 @@ test("does not render a per-card install button for selectable missing dependenc
   ).not.toBeInTheDocument();
 });
 
+test("does not offer outdated dependencies as selectable auto-installs", async () => {
+  vi.mocked(installerApi.detectEnvironment).mockResolvedValueOnce({
+    ...mockEnvironmentState,
+    dependencies: mockEnvironmentState.dependencies.map((dependency) =>
+      dependency.name === "codex"
+        ? {
+            ...dependency,
+            state: "outdated",
+            message: "codex is outdated.",
+          }
+        : dependency,
+    ),
+  });
+
+  render(<AboutSection isPortable={false} />);
+
+  expect(
+    screen.queryByRole("checkbox", { name: "Select codex" }),
+  ).not.toBeInTheDocument();
+});
+
+test("shows the Windows admin retry message for node without exposing a selection checkbox", async () => {
+  vi.mocked(installerApi.detectEnvironment).mockResolvedValueOnce({
+    ...mockEnvironmentState,
+    platform: "windows",
+    dependencies: mockEnvironmentState.dependencies.map((dependency) =>
+      dependency.name === "node"
+        ? {
+            ...dependency,
+            state: "manual",
+            version: null,
+            path: null,
+            message:
+              "Node.js auto-install on Windows requires winget and DPCC-SWITCH to be reopened as administrator.",
+            autoInstallSupported: false,
+          }
+        : dependency,
+    ),
+  });
+
+  render(<AboutSection isPortable={false} />);
+
+  expect(
+    await screen.findByText(
+      "Node.js auto-install on Windows requires winget and DPCC-SWITCH to be reopened as administrator.",
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole("checkbox", { name: "Select node" }),
+  ).not.toBeInTheDocument();
+});
+
 test("reveals manual install commands from the top action bar instead of a dependency card button", async () => {
   const user = userEvent.setup();
 
@@ -409,6 +461,35 @@ test("reveals manual install commands from the top action bar instead of a depen
   expect(
     await screen.findByText("curl -fsSL https://opencode.ai/install | bash"),
   ).toBeInTheDocument();
+});
+
+test("renders the mirrored Homebrew bootstrap commands for macOS node setup", async () => {
+  const user = userEvent.setup();
+
+  vi.mocked(installerApi.getManualCommands).mockResolvedValueOnce([
+    {
+      name: "node",
+      title: "Node.js",
+      commands: [
+        "export HOMEBREW_BREW_GIT_REMOTE=https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git",
+        "git clone --depth=1 https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/install.git /tmp/cc-switch-homebrew-install",
+        "brew install node",
+      ],
+    },
+  ]);
+
+  render(<AboutSection isPortable={false} />);
+
+  await user.click(
+    await screen.findByRole("button", { name: "Manual Commands" }),
+  );
+
+  expect(
+    await screen.findByText(
+      "export HOMEBREW_BREW_GIT_REMOTE=https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git",
+    ),
+  ).toBeInTheDocument();
+  expect(screen.getByText("brew install node")).toBeInTheDocument();
 });
 
 test("installs all missing dependencies from the inline action bar", async () => {

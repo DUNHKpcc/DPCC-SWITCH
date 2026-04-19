@@ -73,6 +73,7 @@ import { UniversalProviderPanel } from "@/components/universal";
 import { McpIcon } from "@/components/BrandIcons";
 import { Button } from "@/components/ui/button";
 import { SessionManagerPage } from "@/components/sessions/SessionManagerPage";
+import { UsageDashboard } from "@/components/usage/UsageDashboard";
 import {
   useDisableCurrentOmo,
   useDisableCurrentOmoSlim,
@@ -87,6 +88,7 @@ import appIcon from "@/assets/icons/app-icon.png";
 type View =
   | "providers"
   | "settings"
+  | "usage"
   | "prompts"
   | "skills"
   | "skillsDiscovery"
@@ -129,6 +131,7 @@ const VIEW_STORAGE_KEY = "cc-switch-last-view";
 const VALID_VIEWS: View[] = [
   "providers",
   "settings",
+  "usage",
   "prompts",
   "skills",
   "skillsDiscovery",
@@ -869,6 +872,12 @@ function App() {
               defaultTab={settingsDefaultTab}
             />
           );
+        case "usage":
+          return (
+            <div className="px-6 pt-4">
+              <UsageDashboard />
+            </div>
+          );
         case "prompts":
           return (
             <PromptPanel
@@ -1118,6 +1127,7 @@ function App() {
                 </Button>
                 <h1 className="text-lg font-semibold">
                   {currentView === "settings" && t("settings.title")}
+                  {currentView === "usage" && t("usage.title")}
                   {currentView === "prompts" &&
                     t("prompts.title", { appName: t(`apps.${activeApp}`) })}
                   {currentView === "skills" && t("skills.title")}
@@ -1144,19 +1154,16 @@ function App() {
                     alt="DPCC-SWITCH"
                     className="h-5 w-5 shrink-0"
                   />
-                  <a
-                    href="https://github.com/farion1231/cc-switch"
-                    target="_blank"
-                    rel="noreferrer"
+                  <span
                     className={cn(
                       "text-xl font-semibold transition-colors",
                       isProxyRunning && isCurrentAppTakeoverActive
-                        ? "text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        : "text-foreground hover:text-foreground/75",
+                        ? "text-emerald-500 dark:text-emerald-400"
+                        : "text-foreground",
                     )}
                   >
                     DPCC-SWITCH
-                  </a>
+                  </span>
                 </div>
                 <Button
                   variant="ghost"
@@ -1170,28 +1177,25 @@ function App() {
                 >
                   <Settings className="w-4 h-4" />
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setCurrentView("usage");
+                  }}
+                  title={t("usage.title", {
+                    defaultValue: "使用统计",
+                  })}
+                  className="hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  <BarChart2 className="w-4 h-4" />
+                </Button>
                 <UpdateBadge
                   onClick={() => {
                     setSettingsDefaultTab("about");
                     setCurrentView("settings");
                   }}
                 />
-                {isCurrentAppTakeoverActive && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSettingsDefaultTab("usage");
-                      setCurrentView("settings");
-                    }}
-                    title={t("usage.title", {
-                      defaultValue: "使用统计",
-                    })}
-                    className="hover:bg-black/5 dark:hover:bg-white/5"
-                  >
-                    <BarChart2 className="w-4 h-4" />
-                  </Button>
-                )}
               </div>
             )}
           </div>
