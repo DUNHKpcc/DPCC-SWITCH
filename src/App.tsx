@@ -14,6 +14,7 @@ import {
   Minimize2,
   X,
   Book,
+  ScrollText,
   Wrench,
   RefreshCw,
   History,
@@ -1189,6 +1190,16 @@ function App() {
                   className="hover:bg-black/5 dark:hover:bg-white/5"
                 >
                   <BarChart2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title={t("common.documentation", {
+                    defaultValue: "文档",
+                  })}
+                  className="hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  <ScrollText className="w-4 h-4" />
                 </Button>
                 <UpdateBadge
                   onClick={() => {
