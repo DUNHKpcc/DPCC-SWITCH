@@ -271,6 +271,32 @@ describe("App integration with MSW", () => {
     expect(addButton.className).not.toContain("orange");
   });
 
+  it("opens the ai docs link when the documentation button is clicked", async () => {
+    const [{ default: App }, { settingsApi }] = await Promise.all([
+      import("@/App"),
+      import("@/lib/api"),
+    ]);
+    const openExternalSpy = vi
+      .spyOn(settingsApi, "openExternal")
+      .mockResolvedValue(undefined);
+
+    renderApp(App);
+
+    await waitFor(() =>
+      expect(screen.getByTestId("provider-list").textContent).toContain(
+        "claude-1",
+      ),
+    );
+
+    fireEvent.click(screen.getByTitle("文档"));
+
+    expect(openExternalSpy).toHaveBeenCalledWith(
+      "https://dpccgaming.xyz/aidocs",
+    );
+
+    openExternalSpy.mockRestore();
+  });
+
   it("duplicates openclaw providers with a generated key that avoids live-only ids", async () => {
     setProviders("openclaw", {
       deepseek: {

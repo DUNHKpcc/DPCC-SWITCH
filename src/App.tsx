@@ -1194,6 +1194,9 @@ function App() {
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={() => {
+                    void handleOpenWebsite("https://dpccgaming.xyz/aidocs");
+                  }}
                   title={t("common.documentation", {
                     defaultValue: "文档",
                   })}
