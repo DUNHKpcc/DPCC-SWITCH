@@ -2,6 +2,8 @@ use std::process::Command;
 
 use chrono::Utc;
 
+use crate::services::shell_env;
+
 use super::node_runtime::{detect_node_install_capability, NodeInstallCapability};
 use super::types::{
     InstallerDependencyKind, InstallerDependencyName, InstallerDependencyState,
@@ -192,12 +194,22 @@ fn detect_binary(
     let auto_install_supported =
         auto_install_supported_on_platform(std::env::consts::OS, name);
 
-    let version_output = Command::new(binary).arg("--version").output();
-    let path_output = if cfg!(target_os = "windows") {
-        Command::new("where").arg(binary).output()
+    let mut version_command = Command::new(binary);
+    version_command.arg("--version");
+    shell_env::apply_resolved_path(&mut version_command);
+    let version_output = version_command.output();
+
+    let mut path_command = if cfg!(target_os = "windows") {
+        let mut command = Command::new("where");
+        command.arg(binary);
+        command
     } else {
-        Command::new("which").arg(binary).output()
+        let mut command = Command::new("which");
+        command.arg(binary);
+        command
     };
+    shell_env::apply_resolved_path(&mut path_command);
+    let path_output = path_command.output();
 
     let version = version_output
         .ok()

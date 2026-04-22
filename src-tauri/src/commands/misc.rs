@@ -2,10 +2,12 @@
 
 use crate::app_config::AppType;
 use crate::init_status::{InitErrorPayload, SkillsMigrationPayload};
+use crate::services::shell_env;
 use crate::services::ProviderService;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::collections::HashMap;
+use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use tauri::AppHandle;
@@ -285,18 +287,20 @@ fn try_get_version(tool: &str) -> (Option<String>, Option<String>) {
 
     #[cfg(target_os = "windows")]
     let output = {
-        Command::new("cmd")
+        let mut command = Command::new("cmd");
+        command
             .args(["/C", &format!("{tool} --version")])
-            .creation_flags(CREATE_NO_WINDOW)
-            .output()
+            .creation_flags(CREATE_NO_WINDOW);
+        shell_env::apply_resolved_path(&mut command);
+        command.output()
     };
 
     #[cfg(not(target_os = "windows"))]
     let output = {
-        Command::new("sh")
-            .arg("-c")
-            .arg(format!("{tool} --version"))
-            .output()
+        let mut command = Command::new("sh");
+        command.arg("-c").arg(format!("{tool} --version"));
+        shell_env::apply_resolved_path(&mut command);
+        command.output()
     };
 
     match output {
@@ -634,14 +638,16 @@ fn scan_cli_version(tool: &str) -> (Option<String>, Option<String>) {
         }
     }
 
-    let current_path = std::env::var("PATH").unwrap_or_default();
+    let current_path = shell_env::resolved_path_env().unwrap_or_else(OsString::new);
+    let current_path_entries: Vec<std::path::PathBuf> =
+        std::env::split_paths(&current_path).collect();
 
     for path in &search_paths {
-        #[cfg(target_os = "windows")]
-        let new_path = format!("{};{}", path.display(), current_path);
-
-        #[cfg(not(target_os = "windows"))]
-        let new_path = format!("{}:{}", path.display(), current_path);
+        let mut path_entries = vec![path.clone()];
+        path_entries.extend(current_path_entries.iter().cloned());
+        let Ok(new_path) = std::env::join_paths(path_entries) else {
+            continue;
+        };
 
         for tool_path in tool_executable_candidates(tool, path) {
             if !tool_path.exists() {
@@ -650,19 +656,19 @@ fn scan_cli_version(tool: &str) -> (Option<String>, Option<String>) {
 
             #[cfg(target_os = "windows")]
             let output = {
-                Command::new("cmd")
+                let mut command = Command::new("cmd");
+                command
                     .args(["/C", &format!("\"{}\" --version", tool_path.display())])
                     .env("PATH", &new_path)
-                    .creation_flags(CREATE_NO_WINDOW)
-                    .output()
+                    .creation_flags(CREATE_NO_WINDOW);
+                command.output()
             };
 
             #[cfg(not(target_os = "windows"))]
             let output = {
-                Command::new(&tool_path)
-                    .arg("--version")
-                    .env("PATH", &new_path)
-                    .output()
+                let mut command = Command::new(&tool_path);
+                command.arg("--version").env("PATH", &new_path);
+                command.output()
             };
 
             if let Ok(out) = output {
